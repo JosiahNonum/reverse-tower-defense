@@ -1,36 +1,23 @@
-import React from "react";
-import Canvas from "./Canvas";
-import useCanvas from "./CanvasHook";
-import Ant from "./objects/Ant";
+import { Application, extend } from "@pixi/react";
+import { Container, Graphics, Sprite } from "pixi.js";
 
-function App() {
-  let objects = [new Ant(0, 0), new Ant(25, 5), new Ant(30, 80)];
+import { BunnySprite } from "./BunnySprite";
+import { Grid } from "./Grid";
 
-  const draw = (ctx, frameCount) => {
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    ctx.fillStyle = "#000000";
-    ctx.beginPath();
-    // ctx.arc(50, 100, 20 * Math.sin(frameCount * 0.05) ** 2, 0, 2 * Math.PI);
-    // ctx.strokeRect(frameCount % ctx.canvas.width, frameCount % ctx.canvas.height, 20, 20);
-    for (let object of objects) {
-      ctx.strokeRect(
-        object.x % ctx.canvas.width,
-        object.y % ctx.canvas.height,
-        object.size,
-        object.size,
-      );
-      object.move(object.x + 1 / 10, object.y + object.speed / 10);
-    }
-    ctx.fill();
-  };
+// extend tells @pixi/react what Pixi.js components are available
+extend({
+  Container,
+  Graphics,
+  Sprite,
+});
 
-  const canvasRef = useCanvas(draw);
-
+export default function App() {
   return (
-    <>
-      <canvas width={800} height={500} ref={canvasRef} />
-    </>
+    // We'll wrap our components with an <Application> component to provide
+    // the Pixi.js Application context
+    <Application>
+      <Grid />
+      <BunnySprite />
+    </Application>
   );
 }
-
-export default App;
