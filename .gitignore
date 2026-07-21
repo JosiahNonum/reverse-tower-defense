@@ -1,0 +1,19 @@
+# Godot 4 generated cache
+.godot/
+*.translation
+
+# Generated builds and exports
+/build/
+/dist/
+
+# Local tooling and secrets
+.env
+.env.*
+!.env.example
+*.log
+
+# Operating system files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
