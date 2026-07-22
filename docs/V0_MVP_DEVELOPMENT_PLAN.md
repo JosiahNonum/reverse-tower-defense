@@ -1,7 +1,7 @@
 # v0 MVP Development Plan
 
-Status: Proposed execution plan, red-team revised  
-Last updated: 2026-07-21  
+Status: Active execution plan; M0 product contract ratified
+Last updated: 2026-07-22
 Source product plan: [PROJECT_PLAN.md](PROJECT_PLAN.md)
 
 Execution board: [Reverse Tower Defense — v0 MVP Build Plan](https://jjs-team192542.monday.com/boards/18423168029) (`18423168029`)
@@ -41,6 +41,62 @@ The player can inspect an AI-authored defense, compose and commit an attacking w
 - Win, loss, restart, and complete-match flow
 - Seeded, reproducible game-rule scenarios
 - Documented local development, test, and Windows export workflow
+
+### Ratified M0.2 match baseline
+
+The detailed source is the [v0 match, economy, and outcome contract](PROJECT_PLAN.md#v0-match-economy-and-outcome-contract). In summary:
+
+- A match has exactly five rounds and a 10-integrity core that does not heal.
+- The player receives fresh attack budgets of 100, 120, 140, 160, and 180; unspent attack budget expires and committed units are consumed.
+- The defender receives 120 before round 1 and 40 before each later round; towers and unspent reserve persist, and sales refund 75% rounded down.
+- Neither side receives performance rewards. This prevents early results from creating an economy snowball that obscures counter-adaptation.
+- Each round flows through defense reveal, wave authoring, commit, fixed-tick resolution, analysis, and—unless terminal—defender adaptation before the next reveal.
+- The player wins immediately when leaks reduce core integrity to 0. Otherwise the defender wins after round 5; there is no draw or score tie-break.
+- Restart rebuilds the entire match from the same seed and definitions with no retained damage, economy, draft, defense, or AI memory.
+
+M0.3 defines draft verbs, M0.4 defines valid routes, and M0.5 assigns content costs and leak damage without changing this economy shape.
+
+### Ratified M0.3 wave-authoring baseline
+
+The detailed source is the [v0 wave-authoring and committed-agency contract](PROJECT_PLAN.md#v0-wave-authoring-and-committed-agency-contract). The v0 composer edits an ordered list of individual unit entries with per-entry route and one of three positive spacing presets: 5, 15, or 30 authoritative ticks. Quantity add, multi-select, duplicate, reorder, route/spacing edits, undo/redo, clear, and explicit copy-previous are authoring conveniences; commit always expands to a normalized list capped at 300 entries.
+
+Commit validates phase, entry count, content IDs, routes, spacing, total cost, round, rules version, and content identity atomically. A rejection preserves both draft and budget with structured reasons. Acceptance freezes the plan and spends its cost once. Afterward the player has inspection, camera, pause, and 1x/2x/4x playback only—no rerouting, retiming, steering, targeting, abilities, or per-unit cancellation.
+
+### Ratified M0.4 lane and route baseline
+
+The detailed source is the [v0 authored lane and route contract](PROJECT_PLAN.md#v0-authored-lane-and-route-contract). One fixed directed acyclic graph provides a shared spawn/approach, North and South branch corridors, a merge, a shared chokepoint, and one core. Every committed unit selects exactly one explicit route before spawning and cannot switch it.
+
+Authoritative position is integer edge progress. Units do not collide, body-block, reserve cells, or use local avoidance; they may overlap and faster units may pass slower ones. Towers occupy fixed authored slots and never change graph connectivity. Presentation curves only visualize the graph. Core arrival produces exactly one ordered leak intent.
+
+### Ratified M0.5 combat baseline
+
+The detailed source is the [v0 combat vocabulary and initial counter matrix](PROJECT_PLAN.md#v0-combat-vocabulary-and-initial-counter-matrix). v0 uses deterministic direct damage, flat per-hit armor, armor penetration, cadence, positional splash, one refreshing non-stacking slow, and Support's non-stacking proximity Rally. It has no elemental matchups, hit/crit RNG, healing, shields, tower damage, or player-triggered unit abilities.
+
+Swarm buys body count, Tank buys armored durability, Runner buys speed, and Support buys automatic formation speed. Rapid supplies cheap cleanup, Splash punishes density, Control answers speed and enables other towers, and Anti-armor answers per-target durability. Fixed targeting comparators and ordered intents make results reproducible. Initial numeric seeds, the 4x4 matrix, five encounters, and the dominance audit are review inputs rather than claims of final balance.
+
+### Ratified M0.6 defender fairness baseline
+
+The detailed source is the [v0 defender knowledge, fairness, and difficulty contract](PROJECT_PLAN.md#v0-defender-knowledge-fairness-and-difficulty-contract). The planner runs only during initial defense and post-wave adaptation, before the next player draft exists. It receives an immutable, value-only observation of public rules/content, its own state/economy, core/round context, and difficulty-permitted finalized history. It never receives live match state, current/future drafts, UI/input telemetry, current-wave entities, other RNG streams, or cross-match player data.
+
+Initial defense plus 40-point adaptation grants use the same Place/Upgrade/Sell/Reserve commands and command gateway as scripted defense. Difficulty changes only completed-history age, integer scoring, candidate/action caps, reserve policy, and near-equal variation; economy, content stats, legality, and hidden-information access remain identical. Easy/Normal/Hard use 32/64/128 candidate caps, 4/6/8 action caps, 20%/10%/0% reserve intentions, and 15%/5%/0% variation bands respectively. Decision traces make observations, scores, bounded work, RNG choices, commands, and rejection reasons inspectable without affecting the result.
+
+### Ratified M0.1 scope and capability trace
+
+Human review accepted the combined M0.2 through M0.6 contracts on 2026-07-22. Together with the explicit non-goals below, they define one internally consistent v0 scope. Initial numeric balance values remain tunable through tests and play evidence; changing the economy shape, player agency, route model, combat vocabulary, AI information boundary, or milestone exit gates requires plan and board change control.
+
+Every Must-priority board item maps to a required v0 capability or delivery gate:
+
+| v0 capability or gate | Product source | Must board work |
+| --- | --- | --- |
+| Verified local Godot/Windows workflow | Local development environment contract | S0.1, S0.2, S0.3, S0.4 |
+| One bounded adaptation-duel scope and explicit non-goals | This ratification plus `PROJECT_PLAN.md` | M0.1 through M0.6 |
+| Headless, reproducible command/state/event foundation | Architecture plan and M0 rule contracts | M1.0 through M1.6 |
+| Authored routes, leaks, targeting, combat archetypes and telemetry | M0.4 and M0.5 | M2.1 through M2.4 |
+| Defense inspection, wave authoring, route commit, phases, playback, analysis and complete scripted match | M0.2 through M0.5 | M3.1 through M3.6 |
+| Fair observation history, legal defense actions, bounded utility planning, visible adaptation and adversarial checks | M0.6 | M4.1 through M4.5 |
+| Dominance search, adaptation-loop playtests, usability, stability/performance/settings, Windows build and exit decision | v0 outcome and milestone exit gates | M5.1 through M5.6 |
+
+No Must item introduces multiplayer, services, freeform navigation, campaign/metaprogression, active unit control, machine-learned AI, expanded platforms, or other non-goals. Later/experimental board work remains Deferred and cannot become an implicit v0 dependency.
 
 ### Explicit non-goals
 

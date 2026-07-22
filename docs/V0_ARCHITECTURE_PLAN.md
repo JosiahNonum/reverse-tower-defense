@@ -1,10 +1,10 @@
 # v0 Detailed Architecture Plan
 
-Status: proposed baseline for review  
-Last updated: 2026-07-21  
+Status: proposed baseline for M1 review
+Last updated: 2026-07-22
 Scope: single-player Windows v0 MVP using Godot 4.7 and GDScript
 
-This document turns the product and milestone plans into an implementable architecture. It is intentionally specific enough to guide S0 and M1, while keeping values that depend on unfinished M0 game-design decisions clearly provisional.
+This document turns the product and milestone plans into an implementable architecture. The M0 product inputs are ratified; the technical baseline remains proposed until the focused M1 review and ADRs accept or revise it.
 
 Related sources:
 
@@ -126,7 +126,7 @@ This is stronger than relying on seeded randomness alone: it removes frame-rate 
 
 ### 4.3 Tick order
 
-The exact vocabulary will follow M0, but the default order is:
+With the ratified M0.2 through M0.5 vocabulary, the tick order is:
 
 1. Apply commands scheduled for the tick boundary.
 2. Spawn due units in stable wave-entry order.
@@ -140,7 +140,15 @@ The exact vocabulary will follow M0, but the default order is:
 
 Systems may create intents during a stage, but do not mutate collections while iterating them. Ties always have a documented final key, normally entity ID. A targeting rule such as “first” is therefore a full comparator, not an informal label.
 
-### 4.4 Randomness
+### 4.4 v0 combat resolution
+
+M0.5 defines deterministic instant attacks. A valid target is living, spawned, not leaked, and inside an inclusive squared-integer range check after movement. Rapid compares remaining route distance then entity ID; Splash compares in-radius victim count, remaining distance, then ID; Control prefers unslowed units then effective speed, remaining distance, and ID; Anti-armor compares armor, maximum health, remaining distance, then ID.
+
+Ready towers acquire from the same post-movement target view and stage attacks in tower-ID order. Splash victims are ordered by entity ID. Intents resolve by source tower ID, attack ordinal, and target ID; deaths resolve only after all staged attack intents. Normal damage is `max(1, raw_damage - armor)` and penetration bypasses armor. Cosmetic projectiles never own hit results.
+
+Rally is recomputed at the start-of-tick status stage from authoritative integer distance, is 125%, excludes its source, and does not stack. Control Slow is 60% for 30 ticks, refreshes rather than stacks, and begins at the next start-of-tick stage. Speed applies Rally then Slow with floor rounding and a living minimum of 1. Units that reach the core are removed before targeting, so death/leak cannot both occur in one tick.
+
+### 4.5 Randomness
 
 `MatchSeed` owns named streams derived from the root seed:
 
@@ -162,7 +170,9 @@ Commands are requests, not trusted mutations. Each has a command ID, expected ph
 - defender `PlaceTower`, `UpgradeTower`, `SellTower`, and `ReserveBudget`
 - lifecycle commands such as `StartMatch`, `AdvanceFromAnalysis`, and `RestartMatch`
 
-Draft-only UI edits may remain in application state until commit. `CommitWave` contains the complete normalized wave plan, so replay does not depend on reconstructing every drag or click.
+Draft-only UI edits remain in application state until commit. Each normalized v0 wave entry contains a unit content ID, route ID, and spacing-after-previous value of 5, 15, or 30 ticks; list order is spawn order and the first entry is scheduled at wave tick 0. `CommitWave` contains 1 through 300 of these entries plus expected round, rules version, and content fingerprint, so replay does not depend on reconstructing every drag, batch edit, copy, undo, or click.
+
+Commit validation is atomic and recomputes cost from authoritative content. Acceptance creates an immutable match-owned `CommittedWave` and spends attack budget once. Rejection preserves the application-owned draft and returns structured reasons. Only `SetPlaybackState` is a player gameplay command during resolution; camera and inspection are presentation concerns.
 
 The command gateway returns either accepted commands or structured rejection codes. Tests, UI, and AI all call the same legality and affordability checks.
 
@@ -199,13 +209,15 @@ Authoritative content uses custom `.tres` resources because they are Inspector-f
 
 Primary definitions:
 
-- `MapDefinition`: stable ID, logical bounds, lane nodes/edges, route IDs, goal/spawn points, build slots, and presentation scene reference
-- `UnitDefinition`: costs, speed, durability, tags, target pressure, and optional support/status specification
-- `TowerDefinition`: costs/upgrades, range, cadence, target filters/priorities, attack/effect specification, and presentation scene reference
+- `MapDefinition`: stable ID, logical bounds, one spawn/core, directed lane nodes and positive-length edges, explicit ordered route edge lists, fixed build slots, and presentation scene reference
+- `UnitDefinition`: integer cost, health, armor, speed, leak damage, and optional non-stacking Rally specification
+- `TowerDefinition`: integer cost/upgrade, range, cadence, complete targeting comparator kind, direct/splash damage, optional penetration or Slow specification, and presentation scene reference
 - `MatchRulesDefinition`: round count, budgets, rewards, core health, timing, and difficulty profile reference
 - `DefenderProfile`: legal policy knobs and scoring weights, never hidden observations
 
 Content validation runs before a match and in headless verification. It rejects duplicate or missing IDs, invalid references, negative or overflow-prone values, unreachable routes, disconnected goals, invalid build slots, upgrade cycles, unsupported status combinations, and definitions that violate v0 bounds.
+
+For the v0 map, `route.north` and `route.south` share authored approach and post-merge edges. Unit runtime position is route ID, edge-list index, and integer distance on that edge. Units have no authoritative collision occupancy and may overlap or pass; only tower build slots have exclusive occupancy. Presentation curves cannot create graph connectivity. Reaching the core stages exactly one leak intent and removes the unit from movement/target eligibility.
 
 Resources are definitions, not save files. Versioned JSON is used where a human-readable portable runtime artifact is more useful: settings, diagnostic scenarios, replay command logs, and test fixtures.
 
@@ -240,40 +252,49 @@ One visual node per active unit is acceptable for the initial measured envelope.
 
 ## 8. Match lifecycle
 
-The coordinator enforces a phase state machine. Names remain provisional until M0, but the required transitions are:
+The coordinator enforces the M0.2 phase state machine:
 
 ```text
-INITIAL_DEFENSE
-      |
-      v
-PLAYER_PLANNING -> WAVE_COMMITTED -> RESOLVING -> ANALYSIS
-      ^                                             |
-      |                                             v
-      +------------- DEFENDER_ADAPTATION <----------+
-                         |
-                         +----> MATCH_END when terminal
+INITIAL_DEFENSE -> DEFENSE_REVEAL -> WAVE_AUTHORING -> WAVE_COMMITTED -> RESOLVING
+                                                                         |
+                                                                         v
+                                                                     ANALYSIS
+                                                                       |  \
+                                                  more rounds          |   \ terminal
+                                                                       v    v
+DEFENSE_REVEAL <- DEFENDER_ADAPTATION <- ROUND_TRANSITION          MATCH_END
 ```
 
-The defender builds the initial defense from map, rules, profile, and seed. Between rounds it receives only the allowed observation projection of committed history. It never receives the live wave draft. The coordinator captures the exact observation before asking the planner for commands, then validates those commands through the normal command gateway.
+The defender builds the initial defense from map, rules, profile, and seed. Between rounds it receives only the allowed observation projection of committed history. It never receives the live wave draft. The coordinator captures the exact observation before asking the planner for commands, then validates those commands through the normal command gateway. Initial defense and defender adaptation are the only phases that accept defense actions. `DEFENSE_REVEAL` is a player-visible application phase and cannot mutate rules state.
+
+The rules definition supplies the five-round attack budget schedule, initial defense budget, adaptation grants, 75% floor-rounded sale refund, and 10-integrity core from the product contract. Attack budget is round-local; defense reserve and tower investment persist. Economy changes are authoritative ordered events, not UI calculations.
 
 Pause stops requests for simulation ticks. Faster playback advances multiple fixed ticks while presentation renders the newest snapshot. Planning and analysis are not simulation-time phases.
 
 ## 9. Defender AI architecture
 
-The AI pipeline is explicit and inspectable:
+The AI boundary is capability-based. During `INITIAL_DEFENSE` and `DEFENDER_ADAPTATION`, the application assembles an immutable `DefenderObservationInput` only from public definitions/rules, defender-owned state/economy, core/round context, and finalized `WaveResult`/`AnalysisSummary` history. `ObservationProjector` applies the difficulty's completed-history age and creates the value-only `DefenderObservation` passed to the planner.
 
-1. `ObservationProjector` creates a fairness-filtered `DefenderObservation`.
-2. `ThreatAnalyzer` derives lane, damage-type, density, speed, and leak pressure features from prior results.
+Neither input nor observation contains `MatchState`, the application draft, an unresolved/current `CommittedWave`, live entities/events, UI/input/presentation objects, root seed, unrelated RNG streams, cross-match files, or mutable resources. The new player draft is created only after planning and defense reveal. AI modules have no global match lookup. Contract tests enforce type/dependency boundaries and attempt forbidden reads.
+
+The explicit pipeline is:
+
+1. `ObservationProjector` creates a fairness-filtered `DefenderObservation` and observation fingerprint.
+2. `ThreatAnalyzer` derives lane, armor, density, speed, spacing, support, and leak-pressure features from permitted prior results.
 3. `CandidateGenerator` enumerates legal placements/upgrades/sales/reserves within hard caps.
 4. `UtilityScorer` emits a score breakdown per candidate.
 5. `BudgetPlanner` selects a bounded action set using deterministic greedy selection, synergy adjustments, and stable tie-breaking.
 6. `VariationPolicy` may choose within a near-equal score band using only the `defender_variation` stream.
 7. The command gateway independently validates every selected action.
-8. `DecisionTrace` records observations used, rejected candidates, component scores, chosen actions, and remaining budget.
+8. `DecisionTrace` records permitted source rounds, observations/features used, caps/truncation, rejected candidates, integer component scores, variation draw ordinals/indices, chosen actions, gateway results, remaining budget, and stop reason.
 
-Initial candidate caps and time budgets are configuration values with diagnostics. Candidate simulation/rollouts are not part of the first AI. They may be added behind the same scoring interface only if heuristic scoring cannot produce a legible adaptation.
+Planning is bounded by deterministic candidate and action counts, not wall-clock authority. Candidate simulation/rollouts and recursive search are not part of v0. Stable candidate keys order action kind, slot ID, tower entity ID, definition ID, and upgrade ID. The Easy/Normal/Hard profiles cap candidates at 32/64/128 and selected commands at 4/6/8.
 
-Difficulty changes information age, scoring weights, candidate breadth, reserve behavior, or controlled variation. It does not grant hidden access to the uncommitted wave or bypass the economy.
+`VariationPolicy` may select only inside the documented 1,500/500/0-basis-point near-equal band using one indexed draw from `defender_variation` per selected action. Legality, scoring, and candidates outside the band are deterministic. Diagnostics are write-only and cannot consume RNG or alter planning.
+
+Difficulty changes only completed-history age, public integer scoring weights/features, candidate/action breadth, intended reserve, or near-equal variation. Easy sees completed history with a one-round delay; Normal and Hard see through the most recently completed round. All difficulties use the same grants, prices, refund, tower stats, core, legal commands, command order, and observation schema. The planner can propose only `PlaceTower`, `UpgradeTower`, `SellTower`, and `ReserveBudget`; the shared gateway independently validates each sequential command.
+
+Observation history is match-local, append-only, ordered, and capped at five finalized rounds. Restart/new match clears history, features, caches, candidates, and traces before reconstructing state. v0 performs no cross-match learning or player profiling.
 
 ## 10. Repository and module layout
 
@@ -390,4 +411,3 @@ The next architecture discussion should explicitly accept or revise:
 - No resumable match save in the initial v0 scope
 - Shallow scene tree, no match-state autoload, and one visual node per entity until profiling says otherwise
 - Diagnostic replay compatibility limited by rules version and content fingerprint
-
