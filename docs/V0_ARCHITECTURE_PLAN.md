@@ -1,15 +1,16 @@
 # v0 Detailed Architecture Plan
 
-Status: proposed baseline for M1 review
+Status: ratified v0 baseline; focused M1 ADRs and spikes in progress
 Last updated: 2026-07-22
 Scope: single-player Windows v0 MVP using Godot 4.7 and GDScript
 
-This document turns the product and milestone plans into an implementable architecture. The M0 product inputs are ratified; the technical baseline remains proposed until the focused M1 review and ADRs accept or revise it.
+This document turns the product and milestone plans into an implementable architecture. The M0 product inputs and the M1.0 technical baseline are ratified. Focused ADRs and executable spikes may refine implementation details without weakening the headless rules seam or honest-AI boundary.
 
 Related sources:
 
 - [Living project plan](PROJECT_PLAN.md)
 - [v0 MVP development plan](V0_MVP_DEVELOPMENT_PLAN.md)
+- [ADR-0001: Simulation Authority and Reproducibility](adrs/0001-simulation-authority-and-reproducibility.md)
 - [monday build board](https://jjs-team192542.monday.com/boards/18423168029)
 
 ## 1. Architecture goals
@@ -28,7 +29,7 @@ Required qualities:
 
 ## 2. Decision status
 
-### Adopt as the v0 baseline
+### Ratified as the v0 baseline
 
 - Godot 4.7.x with statically typed GDScript
 - One Godot project rooted in this repository
@@ -41,16 +42,21 @@ Required qualities:
 - Explicit commands, ordered domain events, read-only presentation snapshots, and wave results
 - Budgeted utility AI with bounded candidate generation and deterministic tie-breaking
 - Versioned JSON for diagnostic scenario/replay artifacts and user settings
-- A dependency-free headless test runner first; reconsider a test add-on only after the M1.2 spike and explicit dependency approval
+- The dependency-free headless project test runner recorded in [Project Test Harness](TESTING.md); reconsider a test add-on only if concrete test needs prove it inadequate and explicit dependency approval is granted
 
-### Provisional until the related decision or spike
+### Ratified working values, subject to measurement
 
 - 20 simulation ticks per second
 - 1,000 logical position units per map unit
 - A v0 stress target of 300 simultaneously active units and 100 placed towers
 - 1280x720 base presentation resolution
-- Exact phase names, economy timing, targeting rules, status stacking, and archetype values
-- Whether v0 needs resumable match saves; settings and diagnostic replay files are sufficient unless M0/M5 proves otherwise
+
+The tick rate and logical scale are authoritative v0 defaults. The stress target and base resolution are validation targets, not performance promises; profiling may change implementation strategy without changing rules authority.
+
+### Ratified scope constraints
+
+- The phase names, economy timing, targeting rules, status stacking, and initial archetype vocabulary are the M0 contracts recorded in the living product plan.
+- v0 does not require resumable in-progress match saves. Versioned settings and diagnostic scenario/replay files are sufficient unless M5 usability evidence authorizes a scope change.
 
 ### Explicitly deferred
 
@@ -332,7 +338,7 @@ Use lowercase `snake_case` paths and file names. Each feature folder may colocat
 
 ## 11. Verification architecture
 
-The initial test runner is a project script invoked with Godot `--headless --script`. This is intentionally separate from Godot's engine-development `--test` suite, which is not a user-project test harness. M1.2 must prove pass, failure, filtering, readable diagnostics, and a nonzero failure exit code before this recommendation is ratified.
+The retained test runner is a project script invoked with Godot `--headless --script`. This is intentionally separate from Godot's engine-development `--test` suite, which is not a user-project test harness. M1.2 proved discovery, filtering, readable assertions and timing, a passing suite, and a nonzero failure exit without adding a dependency. The commands and retain/replace decision are recorded in [Project Test Harness](TESTING.md).
 
 Test layers:
 
@@ -400,14 +406,17 @@ Safeguard: centralize scale conversion, interpolation, squared distance, and rou
 
 Architecture work is complete only when the decisions are reflected in executable boundaries and verification evidence, not when the diagrams are approved.
 
-## 14. Review questions
+## 14. M1.0 review outcome
 
-The next architecture discussion should explicitly accept or revise:
+M1.0 accepted the following baseline on 2026-07-22:
 
-- Integer authoritative movement versus floating-point lane progress
-- 20 Hz simulation tick and the initial scale/performance envelope
-- Custom `.tres` content plus JSON diagnostic artifacts
-- Dependency-free test runner as the first choice
-- No resumable match save in the initial v0 scope
-- Shallow scene tree, no match-state autoload, and one visual node per entity until profiling says otherwise
-- Diagnostic replay compatibility limited by rules version and content fingerprint
+- Integer authoritative movement and lane progress, with float conversion confined to presentation
+- A 20 Hz simulation tick and 1,000 logical position units per map unit
+- An initial measured envelope of 300 active units and 100 towers at a 1280x720 base resolution
+- Immutable custom `.tres` content definitions plus versioned JSON settings and diagnostic artifacts
+- A dependency-free project test runner as the first choice
+- No resumable in-progress match save in initial v0 scope
+- A shallow scene tree, no match-state autoload, and one visual node per entity until profiling shows a need to change presentation strategy
+- Diagnostic replay compatibility guarded by schema version, rules version, and content fingerprint, with no indefinite compatibility promise
+
+The review record and follow-up decision map are in [M1 Architecture Review](M1_ARCHITECTURE_REVIEW.md). Focused ADRs own durable decisions; executable tests own proof that the boundaries work.

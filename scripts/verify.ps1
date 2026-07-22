@@ -19,4 +19,6 @@ if ($LASTEXITCODE -ne 0) {
     throw "Godot smoke test failed with exit code $LASTEXITCODE"
 }
 
-Write-Host 'VERIFY PASS: project parse and smoke test succeeded'
+& (Join-Path $PSScriptRoot 'test.ps1')
+
+Write-Host 'VERIFY PASS: project parse, smoke test, and project tests succeeded'

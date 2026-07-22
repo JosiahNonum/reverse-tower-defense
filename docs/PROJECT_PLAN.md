@@ -1,6 +1,6 @@
 # Reverse Tower Defense — Living Project Plan
 
-Status: M0 product contract ratified; M1 architecture review next
+Status: M0 product contract and M1 architecture baseline ratified; M1 foundation in progress
 Last updated: 2026-07-22
 
 Execution planning is tracked in [V0_MVP_DEVELOPMENT_PLAN.md](V0_MVP_DEVELOPMENT_PLAN.md).
@@ -586,7 +586,7 @@ Use simple, versioned local save data initially. Do not introduce a database or 
 
 ## 7. Architecture direction
 
-The proposed technical baseline is specified in [V0 Detailed Architecture Plan](V0_ARCHITECTURE_PLAN.md). Its M0 product inputs are ratified; the technical choices remain subject to the focused M1 architecture review and ADRs.
+The ratified technical baseline is specified in [V0 Detailed Architecture Plan](V0_ARCHITECTURE_PLAN.md), with the review outcome in [M1 Architecture Review](M1_ARCHITECTURE_REVIEW.md). Focused M1 ADRs and executable spikes may refine implementation details while preserving the headless rules seam and honest-AI boundary.
 
 The simulation should be separated from presentation as much as is practical within Godot. In concrete terms, authoritative rules run in typed `RefCounted` state and systems rather than rendered scenes or physics nodes. Godot scenes present snapshots and events; they do not decide combat outcomes.
 
@@ -643,7 +643,7 @@ The architecture round recommends:
 - Versioned JSON for settings and diagnostic scenario/replay artifacts, guarded by rules version and content fingerprint
 - A dependency-free headless project test runner as the first option, subject to the M1.2 spike
 
-Provisional working values are 20 simulation ticks per second, 1,000 logical position units per map unit, a 1280x720 base resolution, and a rendered stress target of 300 active units plus 100 towers. These are measurement starting points rather than product promises.
+Ratified v0 working values are 20 simulation ticks per second, 1,000 logical position units per map unit, a 1280x720 base resolution, and a rendered stress target of 300 active units plus 100 towers. The tick and logical scale are authoritative defaults; the presentation resolution and stress envelope remain measurement targets rather than performance promises.
 
 ## 8. Defender AI direction
 
@@ -822,7 +822,7 @@ The M0 product contract was accepted on 2026-07-22:
 4. **M0.5 — combat vocabulary and counters:** ratified.
 5. **M0.6 — defender knowledge, fairness, and difficulty:** ratified.
 
-M0.1 ratifies these decisions as one combined v0 scope with the non-goals in this plan and the capability trace in the MVP development plan. M1 next ratifies the simulation architecture, fixed-tick contracts, commands/events, testing, and replay boundaries before gameplay implementation. Theme/tone and detailed presentation direction remain open only where they do not change these product or architecture contracts.
+M0.1 ratifies these decisions as one combined v0 scope with the non-goals in this plan and the capability trace in the MVP development plan. M1.0 ratified the simulation architecture baseline, fixed-tick direction, content policy, initial testing direction, scene boundary, and replay scope. M1 now records focused ADRs and proves those boundaries in the runnable foundation before gameplay implementation. Theme/tone and detailed presentation direction remain open only where they do not change these product or architecture contracts.
 
 ## 14. Reference points
 

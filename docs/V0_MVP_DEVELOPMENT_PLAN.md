@@ -1,6 +1,6 @@
 # v0 MVP Development Plan
 
-Status: Active execution plan; M0 product contract ratified
+Status: Active execution plan; M0 product contract and M1 architecture baseline ratified
 Last updated: 2026-07-22
 Source product plan: [PROJECT_PLAN.md](PROJECT_PLAN.md)
 
@@ -259,6 +259,17 @@ Outputs:
 - Developer diagnostics and documented run commands
 
 Exit gate: one command runs verification, a minimal scenario executes headlessly without presentation nodes, the same state produces a reconciled placeholder view, incompatible diagnostic replays fail clearly, and a Windows build launches.
+
+M1.0 ratified the detailed architecture baseline on 2026-07-22. The remaining M1 items own the focused ADRs and executable evidence for simulation authority, the test harness, runtime primitives, content schemas, diagnostics/replay, the composition root, and the complete Windows verification gate.
+
+M1 progress on 2026-07-22:
+
+- M1.0 ratified the architecture baseline and recorded the follow-up decision map.
+- M1.1 accepted ADR-0001 and proved headless phase authority, stable tie order, named RNG isolation, and the simulation dependency boundary.
+- M1.2 retained a dependency-free project test runner after pass, filter, readable-diagnostic, timing, and nonzero-failure proofs.
+- M1.3 established seeded match state, validated phase commands with structured rejection codes, tick-plus-ordinal events, copied views, JSON result summaries, centralized integer math, monotonic entity IDs, and match-instance isolation.
+
+M1 remains open for content schemas, the expanded verification/diagnostic workflow, the composition/presenter seam, and versioned diagnostic replay contracts.
 
 ### M2 — Fixed-defense combat slice
 
