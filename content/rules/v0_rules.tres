@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="MatchRulesDefinition" load_steps=2 format=3]
+[ext_resource type="Script" path="res://src/content/match_rules_definition.gd" id="1"]
+[resource]
+script = ExtResource("1")
+content_id = &"rules.v0"
+rules_version = "v0.1"
+map_id = &"map.v0"
+unit_ids = Array[StringName]([&"unit.swarm", &"unit.tank", &"unit.runner", &"unit.support"])
+tower_ids = Array[StringName]([&"tower.rapid", &"tower.splash", &"tower.control", &"tower.anti_armor"])
+defender_profile_ids = Array[StringName]([&"profile.easy", &"profile.normal", &"profile.hard"])
+round_count = 5
+attack_budgets = Array[int]([100, 120, 140, 160, 180])
+initial_defense_budget = 120
+adaptation_grant = 40
+sale_refund_basis_points = 7500
+core_health = 10
+ticks_per_second = 20

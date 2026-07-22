@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="TowerDefinition" load_steps=2 format=3]
+[ext_resource type="Script" path="res://src/content/tower_definition.gd" id="1"]
+[resource]
+script = ExtResource("1")
+content_id = &"tower.anti_armor.upgrade"
+tags = Array[StringName]([&"anti_armor", &"upgrade"])
+cost = 30
+range = 1265
+damage = 112
+cooldown_ticks = 30
+targeting_kind = &"anti_armor"
+ignores_armor = true

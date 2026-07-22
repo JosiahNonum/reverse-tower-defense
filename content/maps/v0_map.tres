@@ -1,0 +1,202 @@
+[gd_resource type="Resource" script_class="MapDefinition" load_steps=32 format=3]
+
+[ext_resource type="Script" path="res://src/content/map_definition.gd" id="1_map"]
+[ext_resource type="Script" path="res://src/content/lane_node_definition.gd" id="2_node"]
+[ext_resource type="Script" path="res://src/content/lane_edge_definition.gd" id="3_edge"]
+[ext_resource type="Script" path="res://src/content/route_definition.gd" id="4_route"]
+[ext_resource type="Script" path="res://src/content/build_slot_definition.gd" id="5_slot"]
+
+[sub_resource type="Resource" id="NodeS"]
+script = ExtResource("2_node")
+node_id = &"node.spawn"
+logical_x = 0
+logical_y = 2000
+
+[sub_resource type="Resource" id="NodeA"]
+script = ExtResource("2_node")
+node_id = &"node.approach"
+logical_x = 1000
+logical_y = 2000
+
+[sub_resource type="Resource" id="NodeB"]
+script = ExtResource("2_node")
+node_id = &"node.branch"
+logical_x = 2000
+logical_y = 2000
+
+[sub_resource type="Resource" id="NodeN1"]
+script = ExtResource("2_node")
+node_id = &"node.north_1"
+logical_x = 3000
+logical_y = 1000
+
+[sub_resource type="Resource" id="NodeN2"]
+script = ExtResource("2_node")
+node_id = &"node.north_2"
+logical_x = 4000
+logical_y = 1000
+
+[sub_resource type="Resource" id="NodeS1"]
+script = ExtResource("2_node")
+node_id = &"node.south_1"
+logical_x = 3000
+logical_y = 3000
+
+[sub_resource type="Resource" id="NodeS2"]
+script = ExtResource("2_node")
+node_id = &"node.south_2"
+logical_x = 4000
+logical_y = 3000
+
+[sub_resource type="Resource" id="NodeM"]
+script = ExtResource("2_node")
+node_id = &"node.merge"
+logical_x = 5000
+logical_y = 2000
+
+[sub_resource type="Resource" id="NodeC"]
+script = ExtResource("2_node")
+node_id = &"node.chokepoint"
+logical_x = 6000
+logical_y = 2000
+
+[sub_resource type="Resource" id="NodeG"]
+script = ExtResource("2_node")
+node_id = &"node.core"
+logical_x = 7000
+logical_y = 2000
+
+[sub_resource type="Resource" id="EdgeSA"]
+script = ExtResource("3_edge")
+edge_id = &"edge.spawn_approach"
+from_node_id = &"node.spawn"
+to_node_id = &"node.approach"
+length = 1000
+
+[sub_resource type="Resource" id="EdgeAB"]
+script = ExtResource("3_edge")
+edge_id = &"edge.approach_branch"
+from_node_id = &"node.approach"
+to_node_id = &"node.branch"
+length = 1000
+
+[sub_resource type="Resource" id="EdgeBN1"]
+script = ExtResource("3_edge")
+edge_id = &"edge.branch_north_1"
+from_node_id = &"node.branch"
+to_node_id = &"node.north_1"
+length = 1414
+
+[sub_resource type="Resource" id="EdgeN1N2"]
+script = ExtResource("3_edge")
+edge_id = &"edge.north_1_north_2"
+from_node_id = &"node.north_1"
+to_node_id = &"node.north_2"
+length = 1000
+
+[sub_resource type="Resource" id="EdgeN2M"]
+script = ExtResource("3_edge")
+edge_id = &"edge.north_2_merge"
+from_node_id = &"node.north_2"
+to_node_id = &"node.merge"
+length = 1414
+
+[sub_resource type="Resource" id="EdgeBS1"]
+script = ExtResource("3_edge")
+edge_id = &"edge.branch_south_1"
+from_node_id = &"node.branch"
+to_node_id = &"node.south_1"
+length = 1414
+
+[sub_resource type="Resource" id="EdgeS1S2"]
+script = ExtResource("3_edge")
+edge_id = &"edge.south_1_south_2"
+from_node_id = &"node.south_1"
+to_node_id = &"node.south_2"
+length = 1000
+
+[sub_resource type="Resource" id="EdgeS2M"]
+script = ExtResource("3_edge")
+edge_id = &"edge.south_2_merge"
+from_node_id = &"node.south_2"
+to_node_id = &"node.merge"
+length = 1414
+
+[sub_resource type="Resource" id="EdgeMC"]
+script = ExtResource("3_edge")
+edge_id = &"edge.merge_chokepoint"
+from_node_id = &"node.merge"
+to_node_id = &"node.chokepoint"
+length = 1000
+
+[sub_resource type="Resource" id="EdgeCG"]
+script = ExtResource("3_edge")
+edge_id = &"edge.chokepoint_core"
+from_node_id = &"node.chokepoint"
+to_node_id = &"node.core"
+length = 1000
+
+[sub_resource type="Resource" id="RouteNorth"]
+script = ExtResource("4_route")
+route_id = &"route.north"
+edge_ids = Array[StringName]([&"edge.spawn_approach", &"edge.approach_branch", &"edge.branch_north_1", &"edge.north_1_north_2", &"edge.north_2_merge", &"edge.merge_chokepoint", &"edge.chokepoint_core"])
+
+[sub_resource type="Resource" id="RouteSouth"]
+script = ExtResource("4_route")
+route_id = &"route.south"
+edge_ids = Array[StringName]([&"edge.spawn_approach", &"edge.approach_branch", &"edge.branch_south_1", &"edge.south_1_south_2", &"edge.south_2_merge", &"edge.merge_chokepoint", &"edge.chokepoint_core"])
+
+[sub_resource type="Resource" id="SlotA"]
+script = ExtResource("5_slot")
+slot_id = &"slot.approach"
+logical_x = 1200
+logical_y = 1500
+
+[sub_resource type="Resource" id="SlotN1"]
+script = ExtResource("5_slot")
+slot_id = &"slot.north_1"
+logical_x = 3000
+logical_y = 500
+
+[sub_resource type="Resource" id="SlotN2"]
+script = ExtResource("5_slot")
+slot_id = &"slot.north_2"
+logical_x = 4000
+logical_y = 500
+
+[sub_resource type="Resource" id="SlotS1"]
+script = ExtResource("5_slot")
+slot_id = &"slot.south_1"
+logical_x = 3000
+logical_y = 3500
+
+[sub_resource type="Resource" id="SlotS2"]
+script = ExtResource("5_slot")
+slot_id = &"slot.south_2"
+logical_x = 4000
+logical_y = 3500
+
+[sub_resource type="Resource" id="SlotC1"]
+script = ExtResource("5_slot")
+slot_id = &"slot.chokepoint_1"
+logical_x = 5600
+logical_y = 1500
+
+[sub_resource type="Resource" id="SlotC2"]
+script = ExtResource("5_slot")
+slot_id = &"slot.chokepoint_2"
+logical_x = 6200
+logical_y = 2500
+
+[resource]
+script = ExtResource("1_map")
+content_id = &"map.v0"
+logical_width = 8000
+logical_height = 4000
+spawn_node_id = &"node.spawn"
+core_node_id = &"node.core"
+nodes = Array[LaneNodeDefinition]([SubResource("NodeS"), SubResource("NodeA"), SubResource("NodeB"), SubResource("NodeN1"), SubResource("NodeN2"), SubResource("NodeS1"), SubResource("NodeS2"), SubResource("NodeM"), SubResource("NodeC"), SubResource("NodeG")])
+edges = Array[LaneEdgeDefinition]([SubResource("EdgeSA"), SubResource("EdgeAB"), SubResource("EdgeBN1"), SubResource("EdgeN1N2"), SubResource("EdgeN2M"), SubResource("EdgeBS1"), SubResource("EdgeS1S2"), SubResource("EdgeS2M"), SubResource("EdgeMC"), SubResource("EdgeCG")])
+routes = Array[RouteDefinition]([SubResource("RouteNorth"), SubResource("RouteSouth")])
+build_slots = Array[BuildSlotDefinition]([SubResource("SlotA"), SubResource("SlotN1"), SubResource("SlotN2"), SubResource("SlotS1"), SubResource("SlotS2"), SubResource("SlotC1"), SubResource("SlotC2")])
+presentation_scene_path = "res://src/presentation/main.tscn"

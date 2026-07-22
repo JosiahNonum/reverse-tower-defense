@@ -38,7 +38,7 @@ The review found no unresolved product choice that must return to M0 before foun
 
 - [ADR-0001](adrs/0001-simulation-authority-and-reproducibility.md) records simulation authority and the supported reproducibility guarantee.
 - M1.2 records whether the dependency-free test runner is retained.
-- M1.4 records content-resource immutability, validation, and fingerprint policy.
+- [ADR-0002](adrs/0002-content-resources-and-fingerprints.md) records content-resource immutability, validation, and fingerprint policy.
 - M1.7 records diagnostic replay compatibility and rejection behavior.
 
 Architecture work is not complete from this review alone. Each follow-up remains open until its executable acceptance evidence passes.

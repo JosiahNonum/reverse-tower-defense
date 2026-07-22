@@ -11,6 +11,7 @@ Related sources:
 - [Living project plan](PROJECT_PLAN.md)
 - [v0 MVP development plan](V0_MVP_DEVELOPMENT_PLAN.md)
 - [ADR-0001: Simulation Authority and Reproducibility](adrs/0001-simulation-authority-and-reproducibility.md)
+- [ADR-0002: Content Resources and Fingerprints](adrs/0002-content-resources-and-fingerprints.md)
 - [monday build board](https://jjs-team192542.monday.com/boards/18423168029)
 
 ## 1. Architecture goals
@@ -226,6 +227,8 @@ Content validation runs before a match and in headless verification. It rejects 
 For the v0 map, `route.north` and `route.south` share authored approach and post-merge edges. Unit runtime position is route ID, edge-list index, and integer distance on that edge. Units have no authoritative collision occupancy and may overlap or pass; only tower build slots have exclusive occupancy. Presentation curves cannot create graph connectivity. Reaching the core stages exactly one leak intent and removes the unit from movement/target eligibility.
 
 Resources are definitions, not save files. Versioned JSON is used where a human-readable portable runtime artifact is more useful: settings, diagnostic scenarios, replay command logs, and test fixtures.
+
+M1.4 implements this boundary through the validated `ContentCatalog` and the checked-in `content/` resources. The durable immutability, validation, and SHA-256 fingerprint decision is recorded in [ADR-0002](adrs/0002-content-resources-and-fingerprints.md).
 
 ## 7. Godot application and scene architecture
 

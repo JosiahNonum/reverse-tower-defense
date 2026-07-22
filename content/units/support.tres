@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="UnitDefinition" load_steps=2 format=3]
+[ext_resource type="Script" path="res://src/content/unit_definition.gd" id="1"]
+[resource]
+script = ExtResource("1")
+content_id = &"unit.support"
+cost = 20
+max_health = 72
+armor = 1
+speed_per_tick = 9
+leak_damage = 1
+allowed_route_ids = Array[StringName]([&"route.north", &"route.south"])
+rally_range = 800
+rally_numerator = 125
+rally_denominator = 100

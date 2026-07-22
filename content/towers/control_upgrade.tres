@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="TowerDefinition" load_steps=2 format=3]
+[ext_resource type="Script" path="res://src/content/tower_definition.gd" id="1"]
+[resource]
+script = ExtResource("1")
+content_id = &"tower.control.upgrade"
+tags = Array[StringName]([&"control", &"upgrade"])
+cost = 24
+range = 1375
+damage = 5
+cooldown_ticks = 10
+targeting_kind = &"control"
+slow_numerator = 60
+slow_denominator = 100
+slow_duration_ticks = 30

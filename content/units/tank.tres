@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="UnitDefinition" load_steps=2 format=3]
+[ext_resource type="Script" path="res://src/content/unit_definition.gd" id="1"]
+[resource]
+script = ExtResource("1")
+content_id = &"unit.tank"
+cost = 30
+max_health = 280
+armor = 6
+speed_per_tick = 5
+leak_damage = 3
+allowed_route_ids = Array[StringName]([&"route.north", &"route.south"])

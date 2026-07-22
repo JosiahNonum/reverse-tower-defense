@@ -15,6 +15,7 @@ A minimal, non-gameplay Godot project and its local Windows workflow are establi
 - [Detailed architecture plan](docs/V0_ARCHITECTURE_PLAN.md)
 - [M1 architecture review](docs/M1_ARCHITECTURE_REVIEW.md)
 - [ADR-0001: simulation authority and reproducibility](docs/adrs/0001-simulation-authority-and-reproducibility.md)
+- [ADR-0002: content resources and fingerprints](docs/adrs/0002-content-resources-and-fingerprints.md)
 - [Local toolchain policy and workstation audit](docs/LOCAL_TOOLCHAIN.md)
 - [S0 verification record](docs/S0_VERIFICATION.md)
 - [monday build board](https://jjs-team192542.monday.com/boards/18423168029)

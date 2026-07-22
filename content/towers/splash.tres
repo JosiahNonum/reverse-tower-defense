@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="TowerDefinition" load_steps=2 format=3]
+[ext_resource type="Script" path="res://src/content/tower_definition.gd" id="1"]
+[resource]
+script = ExtResource("1")
+content_id = &"tower.splash"
+tags = Array[StringName]([&"splash"])
+cost = 45
+range = 950
+damage = 22
+cooldown_ticks = 20
+targeting_kind = &"splash"
+splash_radius = 300
+upgrade_to_id = &"tower.splash.upgrade"

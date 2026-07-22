@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="DefenderProfileDefinition" load_steps=2 format=3]
+[ext_resource type="Script" path="res://src/content/defender_profile_definition.gd" id="1"]
+[resource]
+script = ExtResource("1")
+content_id = &"profile.easy"
+history_delay_rounds = 1
+candidate_cap = 32
+action_cap = 4
+reserve_basis_points = 2000
+variation_basis_points = 1500
+scoring_weights = {&"coverage": 100, &"leak_risk": 80}
