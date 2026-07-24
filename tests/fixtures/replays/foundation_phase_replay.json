@@ -1,0 +1,49 @@
+{
+	"schema_version": 1,
+	"rules_version": "v0.1",
+	"content_fingerprint": "2fb4496cec1069e0ccdb9124267d7b482daa2248e42d705e960700f848c7f603",
+	"root_seed": "731",
+	"scenario_id": "foundation.phase_boundary",
+	"content_ids": {
+		"rules": "rules.v0",
+		"map": "map.v0",
+		"units": [
+			"unit.runner",
+			"unit.support",
+			"unit.swarm",
+			"unit.tank"
+		],
+		"towers": [
+			"tower.anti_armor",
+			"tower.control",
+			"tower.rapid",
+			"tower.splash"
+		],
+		"defender_profiles": [
+			"profile.easy",
+			"profile.hard",
+			"profile.normal"
+		]
+	},
+	"accepted_phase_commands": [
+		{
+			"command_id": 1,
+			"command_type": "complete_initial_defense",
+			"expected_phase": "initial_defense",
+			"actor": "system"
+		},
+		{
+			"command_id": 2,
+			"command_type": "begin_wave_authoring",
+			"expected_phase": "defense_reveal",
+			"actor": "player"
+		}
+	],
+	"ticks_to_advance": 3,
+	"expected_summary": {
+		"phase": "wave_authoring",
+		"tick": 3,
+		"event_count": 5,
+		"event_digest": "992ca692e481a519c5be7223c4854ec8b3f9b4f4d6c885ddf0034191286ad006"
+	}
+}

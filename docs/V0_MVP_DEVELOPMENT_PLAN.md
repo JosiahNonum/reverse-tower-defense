@@ -260,9 +260,9 @@ Outputs:
 
 Exit gate: one command runs verification, a minimal scenario executes headlessly without presentation nodes, the same state produces a reconciled placeholder view, incompatible diagnostic replays fail clearly, and a Windows build launches.
 
-M1.0 ratified the detailed architecture baseline on 2026-07-22. The remaining M1 items own the focused ADRs and executable evidence for simulation authority, the test harness, runtime primitives, content schemas, diagnostics/replay, the composition root, and the complete Windows verification gate.
+M1.0 ratified the detailed architecture baseline on 2026-07-22. M1 completed its full runnable-foundation gate on 2026-07-24.
 
-M1 progress on 2026-07-22:
+M1 progress through 2026-07-24:
 
 - M1.0 ratified the architecture baseline and recorded the follow-up decision map.
 - M1.1 accepted ADR-0001 and proved headless phase authority, stable tie order, named RNG isolation, and the simulation dependency boundary.
@@ -270,8 +270,10 @@ M1 progress on 2026-07-22:
 - M1.3 established seeded match state, validated phase commands with structured rejection codes, tick-plus-ordinal events, copied views, JSON result summaries, centralized integer math, monotonic entity IDs, and match-instance isolation.
 - M1.4 established the immutable `.tres` content catalog, the authored two-route map and initial v0 definitions, graph/reference/value validation, one-step upgrade validation, and a stable SHA-256 content fingerprint.
 - M1.6 established the explicit `Main` composition root, presentation-independent `MatchCoordinator`, copied entity views, and stable-ID `BattlefieldView` reconciliation without a match-state autoload.
+- M1.7 accepted ADR-0003 and established typed, versioned JSON replay artifacts; lossless root seeds; normalized content IDs; shared-gateway command playback; explicit schema/rules/content rejection codes; deterministic summary/digest comparison; and a checked headless fixture.
+- M1.5 added the repository-root scenario command, integrated valid and incompatible replay probes into verification, retained the readable nonzero intentional-failure proof, and verified a hashed Windows export through a bounded headless launch.
 
-M1 remains open for versioned diagnostic replay contracts and the expanded verification/diagnostic/export workflow.
+M1 is complete. Its exit evidence is recorded in [M1 Architecture and Foundation Verification](M1_VERIFICATION.md); M2 is the next implementation milestone.
 
 ### M2 — Fixed-defense combat slice
 

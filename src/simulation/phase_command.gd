@@ -25,3 +25,16 @@ func _init(
 	command_type = requested_type
 	expected_phase = requested_phase
 	actor = requested_actor
+
+
+func copy() -> PhaseCommand:
+	return PhaseCommand.new(command_id, command_type, expected_phase, actor)
+
+
+func to_dictionary() -> Dictionary:
+	return {
+		"command_id": command_id,
+		"command_type": String(command_type),
+		"expected_phase": String(expected_phase),
+		"actor": String(actor),
+	}

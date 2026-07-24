@@ -645,6 +645,8 @@ The architecture round recommends:
 
 Ratified v0 working values are 20 simulation ticks per second, 1,000 logical position units per map unit, a 1280x720 base resolution, and a rendered stress target of 300 active units plus 100 towers. The tick and logical scale are authoritative defaults; the presentation resolution and stress envelope remain measurement targets rather than performance promises.
 
+M1.7 now proves the diagnostic replay portion with a versioned typed artifact, lossless root-seed encoding, normalized content IDs, reason-coded compatibility failures, shared-gateway command playback, and a checked deterministic event digest. ADR-0003 owns that compatibility policy; later command families extend the schema deliberately rather than recording presentation gestures.
+
 ## 8. Defender AI direction
 
 Begin with a transparent, budgeted utility AI rather than machine learning.
@@ -822,7 +824,7 @@ The M0 product contract was accepted on 2026-07-22:
 4. **M0.5 — combat vocabulary and counters:** ratified.
 5. **M0.6 — defender knowledge, fairness, and difficulty:** ratified.
 
-M0.1 ratifies these decisions as one combined v0 scope with the non-goals in this plan and the capability trace in the MVP development plan. M1.0 ratified the simulation architecture baseline, fixed-tick direction, content policy, initial testing direction, scene boundary, and replay scope. M1 now records focused ADRs and proves those boundaries in the runnable foundation before gameplay implementation. Theme/tone and detailed presentation direction remain open only where they do not change these product or architecture contracts.
+M0.1 ratifies these decisions as one combined v0 scope with the non-goals in this plan and the capability trace in the MVP development plan. M1.0 ratified the simulation architecture baseline, fixed-tick direction, content policy, initial testing direction, scene boundary, and replay scope. M1 completed the focused ADRs and executable foundation evidence on 2026-07-24; M2 now owns fixed-defense gameplay implementation. Theme/tone and detailed presentation direction remain open only where they do not change these product or architecture contracts.
 
 ## 14. Reference points
 

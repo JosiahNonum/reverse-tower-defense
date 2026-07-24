@@ -75,10 +75,11 @@ Run these from the repository root in Windows PowerShell 5.1 or later:
 | Command | Responsibility |
 | --- | --- |
 | `.\scripts\doctor.ps1` | Resolve the pinned engine, print its version, and require matching Windows templates. |
-| `.\scripts\verify.ps1` | Parse/import the project headlessly and run the minimal scene smoke test. |
+| `.\scripts\verify.ps1` | Parse/import the project, run smoke/tests, replay the checked scenario, and prove incompatible-schema rejection. |
+| `.\scripts\scenario.ps1` | Run the checked diagnostic replay, or a repository-local artifact selected with `-ReplayPath`. |
 | `.\scripts\run.ps1` | Launch the configured main scene. |
 | `.\scripts\run.ps1 -Editor` | Open the project in the Godot editor. |
-| `.\scripts\export.ps1` | Produce the ignored Windows release artifact in `build\windows`. |
+| `.\scripts\export.ps1` | Produce the ignored Windows release artifact, run a bounded headless launch check, and report SHA-256 hashes. |
 
 Set `REV_TOWER_GODOT` to an explicit editor executable only when overriding the versioned conventional location. The command layer still rejects versions outside the pinned `4.7.1.stable` line.
 

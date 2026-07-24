@@ -208,7 +208,9 @@ The snapshot deliberately excludes mutable simulation objects. UI code cannot re
 - accepted phase-boundary commands
 - expected summary or optional event digest
 
-Replays are debugging and regression artifacts. If rules or content fingerprints differ, the runner reports incompatibility instead of silently claiming the old result is valid.
+Replays are debugging and regression artifacts. If schema, rules, or content fingerprints differ, the runner reports a reason-coded incompatibility instead of silently claiming the old result is valid.
+
+M1.7 implements this boundary with typed application-owned artifact, summary, parse-result, and replay-result contracts. The root seed is stored as a decimal string so JSON parsing cannot lose integer precision. Content IDs are normalized, recorded commands pass through `MatchState.apply_phase_command`, and the checked fixture must reproduce its phase, tick, event count, and event digest. The compatibility and evolution policy is recorded in [ADR-0003](adrs/0003-versioned-diagnostic-replay-contract.md).
 
 ## 6. Map, content, and validation
 
@@ -360,6 +362,8 @@ Golden files are limited to stable summaries or event digests. Broad serialized 
 
 Repository-root PowerShell commands should eventually provide `setup` or `doctor`, `verify`, `run`, `test`, `scenario`, and `export` entry points. S0 defines their actual names after the workstation audit.
 
+M1.5 completes that command surface with `doctor.ps1`, `test.ps1`, `verify.ps1`, `scenario.ps1`, `run.ps1`, and `export.ps1`. Verification includes the checked replay and an exact-code incompatible-schema probe; export includes a bounded headless launch check and artifact hashes. The retained evidence is in [M1 Architecture and Foundation Verification](M1_VERIFICATION.md).
+
 ## 12. Red-team findings and safeguards
 
 ### Shared `Resource` mutation can corrupt multiple matches
@@ -410,6 +414,8 @@ Safeguard: centralize scale conversion, interpolation, squared distance, and rou
 8. Add AI through the same observation and command contracts.
 
 Architecture work is complete only when the decisions are reflected in executable boundaries and verification evidence, not when the diagrams are approved.
+
+The M1 architecture/foundation gate met that condition on 2026-07-24. Later milestones may extend the contracts, but any boundary change still requires its owning plan/ADR update and executable proof.
 
 ## 14. M1.0 review outcome
 

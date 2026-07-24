@@ -21,4 +21,12 @@ if ($LASTEXITCODE -ne 0) {
 
 & (Join-Path $PSScriptRoot 'test.ps1')
 
-Write-Host 'VERIFY PASS: project parse, smoke test, and project tests succeeded'
+Write-Host 'Running checked diagnostic replay'
+& (Join-Path $PSScriptRoot 'scenario.ps1')
+
+Write-Host 'Proving incompatible replay rejection'
+& (Join-Path $PSScriptRoot 'scenario.ps1') `
+    -ReplayPath 'tests\fixtures\replays\incompatible_schema_replay.json' `
+    -ExpectedFailureCode 'schema_mismatch'
+
+Write-Host 'VERIFY PASS: project parse, smoke test, project tests, and replay compatibility checks succeeded'

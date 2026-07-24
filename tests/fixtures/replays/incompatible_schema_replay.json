@@ -1,0 +1,36 @@
+{
+	"schema_version": 99,
+	"rules_version": "v0.1",
+	"content_fingerprint": "2fb4496cec1069e0ccdb9124267d7b482daa2248e42d705e960700f848c7f603",
+	"root_seed": "731",
+	"scenario_id": "foundation.incompatible_schema_probe",
+	"content_ids": {
+		"rules": "rules.v0",
+		"map": "map.v0",
+		"units": [
+			"unit.runner",
+			"unit.support",
+			"unit.swarm",
+			"unit.tank"
+		],
+		"towers": [
+			"tower.anti_armor",
+			"tower.control",
+			"tower.rapid",
+			"tower.splash"
+		],
+		"defender_profiles": [
+			"profile.easy",
+			"profile.hard",
+			"profile.normal"
+		]
+	},
+	"accepted_phase_commands": [],
+	"ticks_to_advance": 0,
+	"expected_summary": {
+		"phase": "initial_defense",
+		"tick": 0,
+		"event_count": 0,
+		"event_digest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+	}
+}
