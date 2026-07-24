@@ -279,6 +279,8 @@ M1 is complete. Its exit evidence is recorded in [M1 Architecture and Foundation
 
 Purpose: prove the core simulation and readable combat before introducing adaptive AI.
 
+M2.1 implements the first headless slice: normalized wave entries validate unit/route IDs and 5/15/30-tick spacing atomically; match-owned units move by integer edge progress across authored branches and merges; remainder carries across edges; logical views derive from graph coordinates; and core arrivals resolve exactly once in stable entity-ID order.
+
 Outputs:
 
 - Authored lane-graph movement

@@ -232,6 +232,8 @@ Resources are definitions, not save files. Versioned JSON is used where a human-
 
 M1.4 implements this boundary through the validated `ContentCatalog` and the checked-in `content/` resources. The durable immutability, validation, and SHA-256 fingerprint decision is recorded in [ADR-0002](adrs/0002-content-resources-and-fingerprints.md).
 
+M2.1 adds match-owned `UnitState` route position, `UnitSpawnSchedule`, `LaneMovementSystem`, and `FixedDefenseSimulation`. The schedule validates a complete wave before producing spawns. Movement consumes an integer budget, may enter multiple edges in one tick, and derives integer logical coordinates from authored nodes without scene or curve authority. Spawn, edge-entry, and leak events retain tick-plus-ordinal ordering; arrivals are staged and leak in entity-ID order.
+
 ## 7. Godot application and scene architecture
 
 The initial scene tree should stay shallow:

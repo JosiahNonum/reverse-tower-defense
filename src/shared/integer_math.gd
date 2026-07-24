@@ -27,3 +27,15 @@ static func is_inside_inclusive_range(
 	assert(distance_squared >= 0, "distance squared must be nonnegative")
 	assert(range_value >= 0, "range must be nonnegative")
 	return distance_squared <= range_value * range_value
+
+
+static func interpolate_floor(
+	start_value: int,
+	end_value: int,
+	numerator: int,
+	denominator: int,
+) -> int:
+	assert(numerator >= 0, "interpolation numerator must be nonnegative")
+	assert(denominator > 0, "interpolation denominator must be positive")
+	assert(numerator <= denominator, "interpolation numerator cannot exceed denominator")
+	return start_value + ((end_value - start_value) * numerator) / denominator

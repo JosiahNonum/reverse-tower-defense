@@ -88,6 +88,13 @@ func get_unit(unit_id: StringName) -> UnitDefinition:
 	return null
 
 
+func get_map(map_id: StringName) -> MapDefinition:
+	for map: MapDefinition in maps:
+		if map.content_id == map_id:
+			return map
+	return null
+
+
 func get_rules(rules_id: StringName) -> MatchRulesDefinition:
 	for match_rules: MatchRulesDefinition in rules:
 		if match_rules.content_id == rules_id:
