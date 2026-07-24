@@ -6,7 +6,7 @@ A single-player reverse tower defense game in which the player authors attack wa
 
 The project has a ratified v0 product contract and architecture baseline. The pinned v0 stack is Godot 4.7.1 with statically typed GDScript, targeting Windows desktop first.
 
-The non-gameplay M1 foundation is complete: the project has a dependency-free test runner, headless seeded rules primitives, validated content, an explicit snapshot-driven composition/presentation seam, versioned diagnostic replay contracts, and verified Windows export/launch commands. M2 fixed-defense gameplay now includes validated spawn schedules, authored lane movement, exactly-once leaks, deterministic tower targeting, staged instant attacks, armor/penetration, splash, Control Slow, proximity Rally, cooldowns, death resolution, and real-content scenario coverage for all eight initial combat archetypes.
+The non-gameplay M1 foundation is complete: the project has a dependency-free test runner, headless seeded rules primitives, validated content, an explicit snapshot-driven composition/presentation seam, versioned diagnostic replay contracts, and verified Windows export/launch commands. M2 fixed-defense gameplay now includes validated spawn schedules, authored lane movement, exactly-once leaks, deterministic tower targeting, staged instant attacks, armor/penetration, splash, Control Slow, proximity Rally, cooldowns, death resolution, real-content scenario coverage for all eight initial combat archetypes, and semantic combat telemetry with checked seeded scenarios.
 
 ## Plans
 
@@ -42,4 +42,6 @@ Run these commands from the repository root in Windows PowerShell:
 .\scripts\export.ps1
 ```
 
-`doctor` validates the pinned Godot editor and templates. `test` runs the dependency-free project test harness documented in [Project Test Harness](docs/TESTING.md). `verify` performs a headless project parse, presentation smoke test, project test suite, checked diagnostic replay, and incompatible-schema rejection probe. `scenario` replays the checked foundation fixture by default and accepts `-ReplayPath` for another repository-local artifact. `run` launches the placeholder project, with `-Editor` available to open the editor. `export` produces the ignored Windows artifact under `build/windows`, starts it in a bounded headless smoke check, and reports artifact hashes.
+`doctor` validates the pinned Godot editor and templates. `test` runs the dependency-free project test harness documented in [Project Test Harness](docs/TESTING.md). `verify` performs a headless project parse, presentation smoke test, project test suite, checked combat suite, diagnostic replay, and incompatible-schema rejection probe. `scenario` replays the checked foundation fixture by default and accepts `-ReplayPath` for another repository-local artifact. `run` launches the placeholder project, with `-Editor` available to open the editor. `export` produces the ignored Windows artifact under `build/windows`, starts it in a bounded headless smoke check, and reports artifact hashes.
+
+Run the checked fixed-defense combat suite with `.\scripts\scenario.ps1 -CombatSuite`, or pass one repository-local artifact with `-CombatScenarioPath`. Each run prints a machine-readable semantic summary with outcomes, attacks/effects, effective damage by tower slot and route edge, and overkill.

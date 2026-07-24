@@ -1,0 +1,100 @@
+{
+	"schema_version": 1,
+	"rules_version": "v0.1",
+	"content_fingerprint": "2fb4496cec1069e0ccdb9124267d7b482daa2248e42d705e960700f848c7f603",
+	"root_seed": "2103",
+	"scenario_id": "combat.mixed_counterplay",
+	"rules_id": "rules.v0",
+	"wave_entries": [
+		{
+			"unit_id": "unit.tank",
+			"route_id": "route.north",
+			"spacing_after_previous_ticks": 0
+		},
+		{
+			"unit_id": "unit.runner",
+			"route_id": "route.north",
+			"spacing_after_previous_ticks": 5
+		},
+		{
+			"unit_id": "unit.swarm",
+			"route_id": "route.south",
+			"spacing_after_previous_ticks": 15
+		},
+		{
+			"unit_id": "unit.support",
+			"route_id": "route.south",
+			"spacing_after_previous_ticks": 5
+		}
+	],
+	"tower_deployments": [
+		{
+			"tower_id": "tower.rapid",
+			"slot_id": "slot.approach"
+		},
+		{
+			"tower_id": "tower.control",
+			"slot_id": "slot.north_1"
+		},
+		{
+			"tower_id": "tower.splash",
+			"slot_id": "slot.south_1"
+		},
+		{
+			"tower_id": "tower.anti_armor",
+			"slot_id": "slot.north_2"
+		}
+	],
+	"maximum_ticks": 1500,
+	"expected_summary": {
+		"scenario_id": "combat.mixed_counterplay",
+		"root_seed": "2103",
+		"ending_tick": 796,
+		"core_integrity": 10,
+		"event_counts": {
+			"rally_applied": 151,
+			"slow_staged": 31,
+			"tower_attacked": 113,
+			"unit_damaged": 113,
+			"unit_died": 4,
+			"unit_entered_edge": 3,
+			"unit_spawned": 4
+		},
+		"spawns_by_unit": {
+			"unit.runner": 1,
+			"unit.support": 1,
+			"unit.swarm": 1,
+			"unit.tank": 1
+		},
+		"deaths_by_unit": {
+			"unit.runner": 1,
+			"unit.support": 1,
+			"unit.swarm": 1,
+			"unit.tank": 1
+		},
+		"leaks_by_unit": {},
+		"attacks_by_source": {
+			"tower.anti_armor@slot.north_2": 2,
+			"tower.control@slot.north_1": 31,
+			"tower.rapid@slot.approach": 80
+		},
+		"effects_by_type": {
+			"rally_applied": 151,
+			"slow_staged": 31
+		},
+		"effective_damage_by_source": {
+			"tower.anti_armor@slot.north_2": 129,
+			"tower.control@slot.north_1": 31,
+			"tower.rapid@slot.approach": 264
+		},
+		"effective_damage_by_location": {
+			"route.north/edge.approach_branch": 80,
+			"route.north/edge.branch_north_1": 135,
+			"route.north/edge.north_1_north_2": 41,
+			"route.north/edge.spawn_approach": 72,
+			"route.south/edge.spawn_approach": 96
+		},
+		"total_effective_damage": 424,
+		"total_overkill_damage": 56
+	}
+}

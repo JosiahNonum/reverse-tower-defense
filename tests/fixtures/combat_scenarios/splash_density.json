@@ -1,0 +1,63 @@
+{
+	"schema_version": 1,
+	"rules_version": "v0.1",
+	"content_fingerprint": "2fb4496cec1069e0ccdb9124267d7b482daa2248e42d705e960700f848c7f603",
+	"root_seed": "2101",
+	"scenario_id": "combat.splash_density",
+	"rules_id": "rules.v0",
+	"wave_entries": [
+		{
+			"unit_id": "unit.swarm",
+			"route_id": "route.north",
+			"spacing_after_previous_ticks": 0
+		},
+		{
+			"unit_id": "unit.swarm",
+			"route_id": "route.north",
+			"spacing_after_previous_ticks": 5
+		},
+		{
+			"unit_id": "unit.swarm",
+			"route_id": "route.north",
+			"spacing_after_previous_ticks": 5
+		}
+	],
+	"tower_deployments": [
+		{
+			"tower_id": "tower.splash",
+			"slot_id": "slot.approach"
+		}
+	],
+	"maximum_ticks": 1000,
+	"expected_summary": {
+		"scenario_id": "combat.splash_density",
+		"root_seed": "2101",
+		"ending_tick": 53,
+		"core_integrity": 10,
+		"event_counts": {
+			"tower_attacked": 2,
+			"unit_damaged": 6,
+			"unit_died": 3,
+			"unit_spawned": 3
+		},
+		"spawns_by_unit": {
+			"unit.swarm": 3
+		},
+		"deaths_by_unit": {
+			"unit.swarm": 3
+		},
+		"leaks_by_unit": {},
+		"attacks_by_source": {
+			"tower.splash@slot.approach": 2
+		},
+		"effects_by_type": {},
+		"effective_damage_by_source": {
+			"tower.splash@slot.approach": 72
+		},
+		"effective_damage_by_location": {
+			"route.north/edge.spawn_approach": 72
+		},
+		"total_effective_damage": 72,
+		"total_overkill_damage": 60
+	}
+}

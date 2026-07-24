@@ -91,6 +91,15 @@ func get_core_integrity() -> int:
 	return _core_integrity
 
 
+func is_resolved() -> bool:
+	if _next_spawn_index < _spawns.size():
+		return false
+	for unit: UnitState in _units:
+		if unit.is_active():
+			return false
+	return true
+
+
 func get_units() -> Array[UnitState]:
 	var result: Array[UnitState] = []
 	for unit: UnitState in _units:
@@ -199,9 +208,13 @@ func _apply_start_tick_statuses() -> void:
 			target.apply_rally_for_tick(source.rally_numerator, source.rally_denominator)
 			_emit_event(EVENT_RALLY_APPLIED, {
 				"target_unit_id": target.entity_id,
+				"target_unit_definition_id": String(target.definition_id),
 				"source_unit_ids": rally_sources_by_target[target.entity_id],
 				"numerator": source.rally_numerator,
 				"denominator": source.rally_denominator,
+				"route_id": String(target.route_id),
+				"edge_id": String(_movement.current_edge_id(target)),
+				"distance_on_edge": target.distance_on_edge,
 			})
 		target.apply_active_slow_for_tick()
 
@@ -234,6 +247,9 @@ func _stage_attacks() -> Array[AttackIntent]:
 		_emit_event(EVENT_TOWER_ATTACKED, {
 			"tower_entity_id": tower.entity_id,
 			"tower_id": String(tower.definition_id),
+			"slot_id": String(tower.slot_id),
+			"logical_x": tower.logical_x,
+			"logical_y": tower.logical_y,
 			"attack_ordinal": attack_ordinal,
 			"primary_target_id": primary.entity_id,
 			"victim_ids": victim_ids,
@@ -246,6 +262,8 @@ func _resolve_attack_intents(intents: Array[AttackIntent]) -> void:
 	for intent: AttackIntent in intents:
 		var unit: UnitState = _find_unit(intent.target_unit_id)
 		assert(unit != null, "staged attack targets must remain match-owned until deaths resolve")
+		var tower: TowerState = _find_tower(intent.source_tower_id)
+		assert(tower != null, "staged attack sources must remain match-owned")
 		var resolved_damage: int = intent.raw_damage
 		if not intent.ignores_armor:
 			resolved_damage = maxi(1, intent.raw_damage - unit.armor)
@@ -253,13 +271,19 @@ func _resolve_attack_intents(intents: Array[AttackIntent]) -> void:
 		unit.apply_damage(resolved_damage)
 		_emit_event(EVENT_UNIT_DAMAGED, {
 			"source_tower_id": intent.source_tower_id,
+			"source_tower_definition_id": String(tower.definition_id),
+			"source_slot_id": String(tower.slot_id),
 			"attack_ordinal": intent.attack_ordinal,
 			"target_unit_id": intent.target_unit_id,
+			"target_unit_definition_id": String(unit.definition_id),
 			"raw_damage": intent.raw_damage,
 			"resolved_damage": resolved_damage,
 			"ignores_armor": intent.ignores_armor,
 			"health_before": health_before,
 			"health_after": unit.health,
+			"route_id": String(unit.route_id),
+			"edge_id": String(_movement.current_edge_id(unit)),
+			"distance_on_edge": unit.distance_on_edge,
 		})
 		if intent.slow_duration_ticks > 0:
 			unit.stage_control_slow(
@@ -269,11 +293,17 @@ func _resolve_attack_intents(intents: Array[AttackIntent]) -> void:
 			)
 			_emit_event(EVENT_SLOW_STAGED, {
 				"source_tower_id": intent.source_tower_id,
+				"source_tower_definition_id": String(tower.definition_id),
+				"source_slot_id": String(tower.slot_id),
 				"attack_ordinal": intent.attack_ordinal,
 				"target_unit_id": intent.target_unit_id,
+				"target_unit_definition_id": String(unit.definition_id),
 				"numerator": intent.slow_numerator,
 				"denominator": intent.slow_denominator,
 				"duration_ticks": intent.slow_duration_ticks,
+				"route_id": String(unit.route_id),
+				"edge_id": String(_movement.current_edge_id(unit)),
+				"distance_on_edge": unit.distance_on_edge,
 			})
 
 
@@ -363,4 +393,11 @@ func _find_unit(entity_id: int) -> UnitState:
 	for unit: UnitState in _units:
 		if unit.entity_id == entity_id:
 			return unit
+	return null
+
+
+func _find_tower(entity_id: int) -> TowerState:
+	for tower: TowerState in _towers:
+		if tower.entity_id == entity_id:
+			return tower
 	return null

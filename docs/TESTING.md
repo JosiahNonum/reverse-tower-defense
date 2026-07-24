@@ -44,6 +44,15 @@ The normal verification gate parses the project, runs the presentation smoke tes
 .\scripts\verify.ps1
 ```
 
+The verification gate also runs the checked semantic combat scenarios. They can be exercised separately:
+
+```powershell
+.\scripts\scenario.ps1 -CombatSuite
+.\scripts\scenario.ps1 -CombatScenarioPath tests\fixtures\combat_scenarios\splash_density.json
+```
+
+Combat artifacts record a seed, real content IDs, normalized wave/tower inputs, a bounded tick count, and an expected semantic summary. Failures report precise dictionary paths and expected/actual values rather than relying on screenshots or a digest alone.
+
 ## Intentional failure proof
 
 `tests/fixtures/intentional_failure_test.gd` is excluded from normal discovery. Running it explicitly must print its assertion message and return a nonzero process exit:

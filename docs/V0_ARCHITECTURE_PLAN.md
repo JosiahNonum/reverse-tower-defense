@@ -238,6 +238,8 @@ M2.2 adds match-owned `TowerState`, typed `AttackIntent`, and `TowerTargetingSys
 
 M2.3 completes Support as a match-owned unit behavior. The simulation resets tick speed and activates staged statuses, finds living Rally sources and targets from integer logical positions, applies at most one Rally multiplier per target using the lowest stable source ID, then applies active Slow. Ordered `rally_applied` events expose every contributing source ID without making telemetry authoritative. The checked real-content scenario matrix guards the four base units, four base towers, one-step upgrade contract, counter interactions, and supported-mechanic boundaries.
 
+M2.4 adds `CombatTelemetrySummary` and typed combat-scenario artifact/result/runner contracts under `src/application`. The simulation remains authoritative and only enriches ordered events with stable tower-slot and route-edge context; aggregation is a read-only consumer. Checked JSON artifacts are bound to schema, rules version, and content fingerprint, execute normalized schedules through the same simulation seams, stop on semantic resolution or a fixed timeout, and compare structured summaries with path-level diffs. Summaries use effective health loss for damage totals and retain overkill separately.
+
 ## 7. Godot application and scene architecture
 
 The initial scene tree should stay shallow:

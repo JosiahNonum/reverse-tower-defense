@@ -285,6 +285,8 @@ M2.2 extends that slice with match-owned tower deployments and cooldowns, inclus
 
 M2.3 completes the initial combat vocabulary in executable scenarios. Support Rally is recomputed from authoritative logical positions at the start of each tick, excludes its source, applies once when multiple sources overlap, and composes before Slow with integer floor rounding. The checked archetype matrix uses the real content catalog to prove all four unit and four base tower identities, their upgrade shape, intended strengths and weaknesses, proximity/spacing counterplay, and the absence of unsupported v0 mechanics.
 
+M2.4 adds the fixed-defense evidence layer: enriched ordered events retain tower-slot and route-edge context; application-owned telemetry aggregates spawns, attacks, effects, outcomes, effective damage by source/location, and overkill; and three versioned seeded artifacts cover dense Splash deaths, a Rally-assisted breakthrough, and mixed counterplay. The repository scenario command emits semantic JSON, reports path-level expected/actual differences, and runs the suite in the normal verification gate.
+
 Outputs:
 
 - Authored lane-graph movement
