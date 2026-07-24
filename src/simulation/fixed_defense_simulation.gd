@@ -26,6 +26,7 @@ var _events: Array[DomainEvent] = []
 var _units: Array[UnitState] = []
 var _towers: Array[TowerState] = []
 var _next_event_ordinal: int = 0
+var _record_events: bool
 
 
 func _init(
@@ -34,6 +35,7 @@ func _init(
 	rules: MatchRulesDefinition,
 	schedule: SpawnScheduleResult,
 	tower_deployments: Array[TowerDeployment] = [],
+	record_events: bool = true,
 ) -> void:
 	assert(schedule.is_accepted, "fixed-defense simulation requires a valid schedule")
 	var map: MapDefinition = catalog.get_map(rules.map_id)
@@ -45,6 +47,7 @@ func _init(
 	_movement = LaneMovementSystem.new(map)
 	_targeting = TowerTargetingSystem.new(_movement)
 	_core_integrity = rules.core_health
+	_record_events = record_events
 	_deploy_towers(tower_deployments)
 	for spawn: ScheduledUnitSpawn in schedule.spawns:
 		_spawns.append(spawn.copy())
@@ -221,16 +224,22 @@ func _apply_start_tick_statuses() -> void:
 
 func _stage_attacks() -> Array[AttackIntent]:
 	var intents: Array[AttackIntent] = []
+	var targeting_frame: TowerTargetingFrame = _targeting.create_frame(_units)
 	for tower: TowerState in _towers:
 		if not tower.is_ready():
 			continue
-		var primary: UnitState = _targeting.select_target(tower, _units)
+		var primary: UnitState = _targeting.select_target(tower, _units, targeting_frame)
 		if primary == null:
 			continue
 		var attack_ordinal: int = tower.record_attack()
 		var victims: Array[UnitState] = [primary]
 		if tower.targeting_kind == TowerDefinition.TARGET_SPLASH:
-			victims = _targeting.splash_victims(tower, primary, _units)
+			victims = _targeting.splash_victims(
+				tower,
+				primary,
+				_units,
+				targeting_frame,
+			)
 		var victim_ids: Array[int] = []
 		for victim: UnitState in victims:
 			victim_ids.append(victim.entity_id)
@@ -341,6 +350,8 @@ func _resolve_leak(unit: UnitState) -> void:
 
 
 func _emit_event(event_type: StringName, data: Dictionary) -> void:
+	if not _record_events:
+		return
 	_events.append(DomainEvent.new(_tick, _next_event_ordinal, event_type, data))
 	_next_event_ordinal += 1
 

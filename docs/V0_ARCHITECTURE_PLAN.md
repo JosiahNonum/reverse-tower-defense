@@ -240,6 +240,8 @@ M2.3 completes Support as a match-owned unit behavior. The simulation resets tic
 
 M2.4 adds `CombatTelemetrySummary` and typed combat-scenario artifact/result/runner contracts under `src/application`. The simulation remains authoritative and only enriches ordered events with stable tower-slot and route-edge context; aggregation is a read-only consumer. Checked JSON artifacts are bound to schema, rules version, and content fingerprint, execute normalized schedules through the same simulation seams, stop on semantic resolution or a fixed timeout, and compare structured summaries with path-level diffs. Summaries use effective health loss for damage totals and retain overkill separately.
 
+M2.5 measures the ratified 300-unit/100-tower envelope before optimization. `TowerTargetingFrame` is an ephemeral attack-stage cache of active-unit logical positions and remaining route distances; target selection uses a stable linear best-candidate scan instead of sorting and recomputing route values. The cache cannot outlive the stage or change comparators, attack ordering, events, or authoritative state. Diagnostics can be disabled for measurement only, and parity tests require identical semantic outcomes. The repeatable headless and rendered results are recorded in [M2 Performance Envelope](M2_PERFORMANCE.md).
+
 ## 7. Godot application and scene architecture
 
 The initial scene tree should stay shallow:

@@ -53,6 +53,15 @@ The verification gate also runs the checked semantic combat scenarios. They can 
 
 Combat artifacts record a seed, real content IDs, normalized wave/tower inputs, a bounded tick count, and an expected semantic summary. Failures report precise dictionary paths and expected/actual values rather than relying on screenshots or a digest alone.
 
+Performance is measured separately from the ordinary deterministic gate because workstation timing is hardware-sensitive:
+
+```powershell
+.\scripts\benchmark.ps1
+.\scripts\benchmark.ps1 -SkipRender
+```
+
+The first command measures headless simulation with diagnostics on/off and then opens a short-lived rendered window for the 1280x720 presentation proxy. Thresholds, current workstation results, and the required production-visual recheck are recorded in [M2 Performance Envelope](M2_PERFORMANCE.md).
+
 ## Intentional failure proof
 
 `tests/fixtures/intentional_failure_test.gd` is excluded from normal discovery. Running it explicitly must print its assertion message and return a nonzero process exit:

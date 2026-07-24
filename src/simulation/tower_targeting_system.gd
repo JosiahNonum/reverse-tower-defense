@@ -9,11 +9,35 @@ func _init(movement: LaneMovementSystem) -> void:
 	_movement = movement
 
 
-func select_target(tower: TowerState, units: Array[UnitState]) -> UnitState:
-	var candidates: Array[UnitState] = []
+func create_frame(units: Array[UnitState]) -> TowerTargetingFrame:
+	var frame := TowerTargetingFrame.new()
 	for unit: UnitState in units:
-		if unit.is_active() and _is_in_tower_range(tower, unit):
+		if not unit.is_active():
+			continue
+		frame.add(
+			unit,
+			_movement.logical_position(unit),
+			_movement.remaining_route_distance(unit),
+		)
+	return frame
+
+
+func select_target(
+	tower: TowerState,
+	units: Array[UnitState],
+	frame: TowerTargetingFrame = null,
+) -> UnitState:
+	var targeting_frame: TowerTargetingFrame = (
+		frame if frame != null else create_frame(units)
+	)
+	var candidates: Array[UnitState] = []
+	var remaining_distances: Dictionary[int, int] = {}
+	for unit: UnitState in targeting_frame.active_units:
+		if _is_in_tower_range(tower, unit, targeting_frame):
 			candidates.append(unit)
+			remaining_distances[unit.entity_id] = (
+				targeting_frame.remaining_route_distances[unit.entity_id]
+			)
 	if candidates.is_empty():
 		return null
 	var splash_counts: Dictionary[int, int] = {}
@@ -22,25 +46,35 @@ func select_target(tower: TowerState, units: Array[UnitState]) -> UnitState:
 			splash_counts[candidate.entity_id] = _count_splash_victims(
 				tower,
 				candidate,
-				units,
+				targeting_frame,
 			)
-	candidates.sort_custom(func(left: UnitState, right: UnitState) -> bool:
-		return _target_before(tower, left, right, splash_counts)
-	)
-	return candidates[0]
+	var selected: UnitState = candidates[0]
+	for candidate_index: int in range(1, candidates.size()):
+		var candidate: UnitState = candidates[candidate_index]
+		if _target_before(
+			tower,
+			candidate,
+			selected,
+			splash_counts,
+			remaining_distances,
+		):
+			selected = candidate
+	return selected
 
 
 func splash_victims(
 	tower: TowerState,
 	primary: UnitState,
 	units: Array[UnitState],
+	frame: TowerTargetingFrame = null,
 ) -> Array[UnitState]:
+	var targeting_frame: TowerTargetingFrame = (
+		frame if frame != null else create_frame(units)
+	)
 	var victims: Array[UnitState] = []
-	var primary_position: Vector2i = _movement.logical_position(primary)
-	for unit: UnitState in units:
-		if not unit.is_active():
-			continue
-		var position: Vector2i = _movement.logical_position(unit)
+	var primary_position: Vector2i = targeting_frame.positions[primary.entity_id]
+	for unit: UnitState in targeting_frame.active_units:
+		var position: Vector2i = targeting_frame.positions[unit.entity_id]
 		var distance_squared: int = IntegerMath.squared_distance(
 			primary_position.x,
 			primary_position.y,
@@ -60,6 +94,7 @@ func _target_before(
 	left: UnitState,
 	right: UnitState,
 	splash_counts: Dictionary[int, int],
+	remaining_distances: Dictionary[int, int],
 ) -> bool:
 	match tower.targeting_kind:
 		TowerDefinition.TARGET_SPLASH:
@@ -77,8 +112,8 @@ func _target_before(
 				return left.armor > right.armor
 			if left.max_health != right.max_health:
 				return left.max_health > right.max_health
-	var left_remaining: int = _movement.remaining_route_distance(left)
-	var right_remaining: int = _movement.remaining_route_distance(right)
+	var left_remaining: int = remaining_distances[left.entity_id]
+	var right_remaining: int = remaining_distances[right.entity_id]
 	if left_remaining != right_remaining:
 		return left_remaining < right_remaining
 	return left.entity_id < right.entity_id
@@ -87,14 +122,12 @@ func _target_before(
 func _count_splash_victims(
 	tower: TowerState,
 	primary: UnitState,
-	units: Array[UnitState],
+	frame: TowerTargetingFrame,
 ) -> int:
 	var count: int = 0
-	var primary_position: Vector2i = _movement.logical_position(primary)
-	for unit: UnitState in units:
-		if not unit.is_active():
-			continue
-		var position: Vector2i = _movement.logical_position(unit)
+	var primary_position: Vector2i = frame.positions[primary.entity_id]
+	for unit: UnitState in frame.active_units:
+		var position: Vector2i = frame.positions[unit.entity_id]
 		var distance_squared: int = IntegerMath.squared_distance(
 			primary_position.x,
 			primary_position.y,
@@ -106,8 +139,12 @@ func _count_splash_victims(
 	return count
 
 
-func _is_in_tower_range(tower: TowerState, unit: UnitState) -> bool:
-	var position: Vector2i = _movement.logical_position(unit)
+func _is_in_tower_range(
+	tower: TowerState,
+	unit: UnitState,
+	frame: TowerTargetingFrame,
+) -> bool:
+	var position: Vector2i = frame.positions[unit.entity_id]
 	var distance_squared: int = IntegerMath.squared_distance(
 		tower.logical_x,
 		tower.logical_y,

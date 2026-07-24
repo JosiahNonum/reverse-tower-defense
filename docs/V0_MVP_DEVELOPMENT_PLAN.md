@@ -287,6 +287,8 @@ M2.3 completes the initial combat vocabulary in executable scenarios. Support Ra
 
 M2.4 adds the fixed-defense evidence layer: enriched ordered events retain tower-slot and route-edge context; application-owned telemetry aggregates spawns, attacks, effects, outcomes, effective damage by source/location, and overkill; and three versioned seeded artifacts cover dense Splash deaths, a Rally-assisted breakthrough, and mixed counterplay. The repository scenario command emits semantic JSON, reports path-level expected/actual differences, and runs the suite in the normal verification gate.
 
+M2.5 verifies the agreed 300-unit/100-tower scale on the development workstation. The active Swarm/Control headless fixture simulates one gameplay second in 225.241 ms median without diagnostics and 221.417 ms with 902 retained events, with identical semantic outcomes. A measured targeting hot path was remediated through a stable linear selection pass and per-tick cached targeting frame. The current 400-node 1280x720 presentation proxy records 2.435 ms p95 frame time and 1.588 ms p95 reconciliation; production visuals require remeasurement. Full evidence and caveats are in [M2 Performance Envelope](M2_PERFORMANCE.md).
+
 Outputs:
 
 - Authored lane-graph movement
@@ -298,6 +300,8 @@ Outputs:
 - Basic battlefield rendering and combat telemetry
 
 Exit gate: a committed wave resolves reproducibly against a fixed defense, produces an inspectable event summary, and stays within the agreed performance budget.
+
+M2 is complete. M3 is the next implementation milestone.
 
 ### M3 — Player-authored match
 
