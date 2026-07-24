@@ -6,7 +6,7 @@ A single-player reverse tower defense game in which the player authors attack wa
 
 The project has a ratified v0 product contract and architecture baseline. The pinned v0 stack is Godot 4.7.1 with statically typed GDScript, targeting Windows desktop first.
 
-A minimal, non-gameplay Godot project and its local Windows workflow are established. M1 foundation work now includes the dependency-free test runner and the first headless seeded command/state/event/view/result primitives. Gameplay implementation begins in later milestones.
+A minimal, non-gameplay Godot project and its local Windows workflow are established. M1 foundation work now includes the dependency-free test runner, headless seeded rules primitives, validated content, and an explicit snapshot-driven composition/presentation seam. Gameplay implementation begins in later milestones.
 
 ## Plans
 

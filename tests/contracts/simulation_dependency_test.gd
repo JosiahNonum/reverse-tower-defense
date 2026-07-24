@@ -6,8 +6,10 @@ const FORBIDDEN_TEXT: Array[String] = [
 	"extends Node",
 	"res://src/presentation",
 	"res://src/ui",
+	"res://src/application",
 	"src/presentation",
 	"src/ui",
+	"src/application",
 ]
 
 

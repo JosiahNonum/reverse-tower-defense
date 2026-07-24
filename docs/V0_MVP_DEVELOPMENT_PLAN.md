@@ -269,8 +269,9 @@ M1 progress on 2026-07-22:
 - M1.2 retained a dependency-free project test runner after pass, filter, readable-diagnostic, timing, and nonzero-failure proofs.
 - M1.3 established seeded match state, validated phase commands with structured rejection codes, tick-plus-ordinal events, copied views, JSON result summaries, centralized integer math, monotonic entity IDs, and match-instance isolation.
 - M1.4 established the immutable `.tres` content catalog, the authored two-route map and initial v0 definitions, graph/reference/value validation, one-step upgrade validation, and a stable SHA-256 content fingerprint.
+- M1.6 established the explicit `Main` composition root, presentation-independent `MatchCoordinator`, copied entity views, and stable-ID `BattlefieldView` reconciliation without a match-state autoload.
 
-M1 remains open for the expanded verification/diagnostic workflow, the composition/presenter seam, and versioned diagnostic replay contracts.
+M1 remains open for versioned diagnostic replay contracts and the expanded verification/diagnostic/export workflow.
 
 ### M2 — Fixed-defense combat slice
 

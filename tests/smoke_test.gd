@@ -14,7 +14,17 @@ func _initialize() -> void:
 		scene_instance.free()
 		quit(1)
 		return
+	if scene_instance.get_node_or_null("MatchCoordinator") == null:
+		push_error("SMOKE FAIL: Main does not contain MatchCoordinator")
+		scene_instance.free()
+		quit(1)
+		return
+	if scene_instance.get_node_or_null("MatchScreen/BattlefieldView") == null:
+		push_error("SMOKE FAIL: Main does not contain BattlefieldView")
+		scene_instance.free()
+		quit(1)
+		return
 
 	scene_instance.free()
-	print("SMOKE PASS: main scene loads and instantiates")
+	print("SMOKE PASS: main composition scene loads and exposes coordinator/presenter seam")
 	quit(0)

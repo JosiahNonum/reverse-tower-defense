@@ -259,6 +259,8 @@ Main (composition root)
 
 One visual node per active unit is acceptable for the initial measured envelope. If profiling disproves that assumption, presentation can pool views or batch sprites without rewriting the rules core.
 
+M1.6 implements this seam with `MainCompositionRoot`, `MatchCoordinator`, and `BattlefieldView`. `Main` explicitly loads and validates the content catalog, creates the match service, and connects the coordinator's copied view/event publication to presentation. The battlefield reconciles placeholder visual nodes by stable entity ID; it never receives `MatchState`. Contract tests keep simulation independent of application/presentation/UI, keep the coordinator independent of presentation/UI, and reject a match-state autoload.
+
 ## 8. Match lifecycle
 
 The coordinator enforces the M0.2 phase state machine:

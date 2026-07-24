@@ -1,4 +1,8 @@
-[gd_scene format=3]
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://src/presentation/main.gd" id="1_main"]
+[ext_resource type="Script" path="res://src/application/match_coordinator.gd" id="2_coordinator"]
+[ext_resource type="Script" path="res://src/presentation/battlefield_view.gd" id="3_battlefield"]
 
 [node name="Main" type="Control"]
 layout_mode = 3
@@ -7,8 +11,20 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_main")
 
-[node name="Background" type="ColorRect" parent="."]
+[node name="MatchCoordinator" type="Node" parent="."]
+script = ExtResource("2_coordinator")
+
+[node name="MatchScreen" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Background" type="ColorRect" parent="MatchScreen"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -18,7 +34,10 @@ grow_vertical = 2
 mouse_filter = 2
 color = Color(0.027, 0.035, 0.055, 1)
 
-[node name="Center" type="VBoxContainer" parent="."]
+[node name="BattlefieldView" type="Node2D" parent="MatchScreen"]
+script = ExtResource("3_battlefield")
+
+[node name="Center" type="VBoxContainer" parent="MatchScreen"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -33,29 +52,29 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 18
 
-[node name="Eyebrow" type="Label" parent="Center"]
+[node name="Eyebrow" type="Label" parent="MatchScreen/Center"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.35, 0.82, 0.66, 1)
 theme_override_font_sizes/font_size = 18
-text = "S0  /  LOCAL TOOLCHAIN CHECK"
+text = "M1  /  ARCHITECTURE FOUNDATION"
 horizontal_alignment = 1
 
-[node name="Title" type="Label" parent="Center"]
+[node name="Title" type="Label" parent="MatchScreen/Center"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.93, 0.95, 1, 1)
 theme_override_font_sizes/font_size = 42
 text = "REVERSE TOWER DEFENSE"
 horizontal_alignment = 1
 
-[node name="Rule" type="ColorRect" parent="Center"]
+[node name="Rule" type="ColorRect" parent="MatchScreen/Center"]
 custom_minimum_size = Vector2(0, 2)
 layout_mode = 2
 mouse_filter = 2
 color = Color(0.35, 0.82, 0.66, 0.65)
 
-[node name="Status" type="Label" parent="Center"]
+[node name="Status" type="Label" parent="MatchScreen/Center"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.65, 0.7, 0.8, 1)
 theme_override_font_sizes/font_size = 20
-text = "Minimal project scaffold — no gameplay implemented"
+text = "Composing validated match services..."
 horizontal_alignment = 1
