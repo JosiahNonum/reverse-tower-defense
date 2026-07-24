@@ -5,11 +5,17 @@ extends RefCounted
 const EVENT_UNIT_SPAWNED: StringName = &"unit_spawned"
 const EVENT_UNIT_ENTERED_EDGE: StringName = &"unit_entered_edge"
 const EVENT_UNIT_LEAKED: StringName = &"unit_leaked"
+const EVENT_TOWER_ATTACKED: StringName = &"tower_attacked"
+const EVENT_UNIT_DAMAGED: StringName = &"unit_damaged"
+const EVENT_SLOW_STAGED: StringName = &"slow_staged"
+const EVENT_UNIT_DIED: StringName = &"unit_died"
 
 var _root_seed: int
 var _catalog: ContentCatalog
 var _rules: MatchRulesDefinition
+var _map: MapDefinition
 var _movement: LaneMovementSystem
+var _targeting: TowerTargetingSystem
 var _spawns: Array[ScheduledUnitSpawn] = []
 var _next_spawn_index: int = 0
 var _next_entity_id: int = 1
@@ -17,6 +23,7 @@ var _tick: int = 0
 var _core_integrity: int
 var _events: Array[DomainEvent] = []
 var _units: Array[UnitState] = []
+var _towers: Array[TowerState] = []
 var _next_event_ordinal: int = 0
 
 
@@ -25,6 +32,7 @@ func _init(
 	catalog: ContentCatalog,
 	rules: MatchRulesDefinition,
 	schedule: SpawnScheduleResult,
+	tower_deployments: Array[TowerDeployment] = [],
 ) -> void:
 	assert(schedule.is_accepted, "fixed-defense simulation requires a valid schedule")
 	var map: MapDefinition = catalog.get_map(rules.map_id)
@@ -32,8 +40,11 @@ func _init(
 	_root_seed = root_seed
 	_catalog = catalog
 	_rules = rules
+	_map = map
 	_movement = LaneMovementSystem.new(map)
+	_targeting = TowerTargetingSystem.new(_movement)
 	_core_integrity = rules.core_health
+	_deploy_towers(tower_deployments)
 	for spawn: ScheduledUnitSpawn in schedule.spawns:
 		_spawns.append(spawn.copy())
 	_spawns.sort_custom(_spawn_before)
@@ -42,6 +53,7 @@ func _init(
 func advance_one_tick() -> void:
 	_next_event_ordinal = 0
 	_spawn_due_units()
+	_apply_start_tick_statuses()
 	var arrivals: Array[UnitState] = []
 	for unit: UnitState in _units:
 		if not unit.is_active():
@@ -58,6 +70,11 @@ func advance_one_tick() -> void:
 	arrivals.sort_custom(_entity_id_before)
 	for unit: UnitState in arrivals:
 		_resolve_leak(unit)
+	for tower: TowerState in _towers:
+		tower.begin_tick()
+	var attack_intents: Array[AttackIntent] = _stage_attacks()
+	_resolve_attack_intents(attack_intents)
+	_resolve_deaths()
 	_tick += 1
 
 
@@ -80,6 +97,13 @@ func get_units() -> Array[UnitState]:
 	return result
 
 
+func get_towers() -> Array[TowerState]:
+	var result: Array[TowerState] = []
+	for tower: TowerState in _towers:
+		result.append(tower.copy())
+	return result
+
+
 func get_events() -> Array[DomainEvent]:
 	var result: Array[DomainEvent] = []
 	for event: DomainEvent in _events:
@@ -89,6 +113,13 @@ func get_events() -> Array[DomainEvent]:
 
 func create_entity_views() -> Array[EntityView]:
 	var views: Array[EntityView] = []
+	for tower: TowerState in _towers:
+		views.append(EntityView.new(
+			tower.entity_id,
+			&"tower",
+			tower.logical_x,
+			tower.logical_y,
+		))
 	for unit: UnitState in _units:
 		if not unit.is_active():
 			continue
@@ -130,6 +161,100 @@ func _spawn_due_units() -> void:
 		_next_spawn_index += 1
 
 
+func _apply_start_tick_statuses() -> void:
+	for unit: UnitState in _units:
+		if unit.is_active():
+			unit.begin_tick_status_stage()
+
+
+func _stage_attacks() -> Array[AttackIntent]:
+	var intents: Array[AttackIntent] = []
+	for tower: TowerState in _towers:
+		if not tower.is_ready():
+			continue
+		var primary: UnitState = _targeting.select_target(tower, _units)
+		if primary == null:
+			continue
+		var attack_ordinal: int = tower.record_attack()
+		var victims: Array[UnitState] = [primary]
+		if tower.targeting_kind == TowerDefinition.TARGET_SPLASH:
+			victims = _targeting.splash_victims(tower, primary, _units)
+		var victim_ids: Array[int] = []
+		for victim: UnitState in victims:
+			victim_ids.append(victim.entity_id)
+			intents.append(AttackIntent.new(
+				tower.entity_id,
+				attack_ordinal,
+				victim.entity_id,
+				tower.damage,
+				tower.ignores_armor,
+				tower.slow_numerator,
+				tower.slow_denominator,
+				tower.slow_duration_ticks,
+			))
+		_emit_event(EVENT_TOWER_ATTACKED, {
+			"tower_entity_id": tower.entity_id,
+			"tower_id": String(tower.definition_id),
+			"attack_ordinal": attack_ordinal,
+			"primary_target_id": primary.entity_id,
+			"victim_ids": victim_ids,
+		})
+	return intents
+
+
+func _resolve_attack_intents(intents: Array[AttackIntent]) -> void:
+	intents.sort_custom(_attack_intent_before)
+	for intent: AttackIntent in intents:
+		var unit: UnitState = _find_unit(intent.target_unit_id)
+		assert(unit != null, "staged attack targets must remain match-owned until deaths resolve")
+		var resolved_damage: int = intent.raw_damage
+		if not intent.ignores_armor:
+			resolved_damage = maxi(1, intent.raw_damage - unit.armor)
+		var health_before: int = unit.health
+		unit.apply_damage(resolved_damage)
+		_emit_event(EVENT_UNIT_DAMAGED, {
+			"source_tower_id": intent.source_tower_id,
+			"attack_ordinal": intent.attack_ordinal,
+			"target_unit_id": intent.target_unit_id,
+			"raw_damage": intent.raw_damage,
+			"resolved_damage": resolved_damage,
+			"ignores_armor": intent.ignores_armor,
+			"health_before": health_before,
+			"health_after": unit.health,
+		})
+		if intent.slow_duration_ticks > 0:
+			unit.stage_control_slow(
+				intent.slow_numerator,
+				intent.slow_denominator,
+				intent.slow_duration_ticks,
+			)
+			_emit_event(EVENT_SLOW_STAGED, {
+				"source_tower_id": intent.source_tower_id,
+				"attack_ordinal": intent.attack_ordinal,
+				"target_unit_id": intent.target_unit_id,
+				"numerator": intent.slow_numerator,
+				"denominator": intent.slow_denominator,
+				"duration_ticks": intent.slow_duration_ticks,
+			})
+
+
+func _resolve_deaths() -> void:
+	var defeated: Array[UnitState] = []
+	for unit: UnitState in _units:
+		if unit.is_spawned and unit.health == 0 and not unit.has_died and not unit.has_leaked:
+			defeated.append(unit)
+	defeated.sort_custom(_entity_id_before)
+	for unit: UnitState in defeated:
+		unit.mark_died()
+		_emit_event(EVENT_UNIT_DIED, {
+			"entity_id": unit.entity_id,
+			"unit_id": String(unit.definition_id),
+			"route_id": String(unit.route_id),
+			"edge_index": unit.edge_index,
+			"distance_on_edge": unit.distance_on_edge,
+		})
+
+
 func _resolve_leak(unit: UnitState) -> void:
 	if unit.has_leaked:
 		return
@@ -159,3 +284,44 @@ func _spawn_before(left: ScheduledUnitSpawn, right: ScheduledUnitSpawn) -> bool:
 	if left.spawn_tick != right.spawn_tick:
 		return left.spawn_tick < right.spawn_tick
 	return left.wave_entry_index < right.wave_entry_index
+
+
+func _attack_intent_before(left: AttackIntent, right: AttackIntent) -> bool:
+	if left.source_tower_id != right.source_tower_id:
+		return left.source_tower_id < right.source_tower_id
+	if left.attack_ordinal != right.attack_ordinal:
+		return left.attack_ordinal < right.attack_ordinal
+	return left.target_unit_id < right.target_unit_id
+
+
+func _deploy_towers(deployments: Array[TowerDeployment]) -> void:
+	var occupied_slots: Dictionary[StringName, bool] = {}
+	for deployment: TowerDeployment in deployments:
+		assert(not occupied_slots.has(deployment.slot_id), "tower slots may only be occupied once")
+		var definition: TowerDefinition = _catalog.get_tower(deployment.tower_id)
+		assert(definition != null, "deployed tower definition must exist")
+		var slot: BuildSlotDefinition = _find_slot(deployment.slot_id)
+		assert(slot != null, "deployed tower slot must exist")
+		occupied_slots[deployment.slot_id] = true
+		_towers.append(TowerState.new(
+			definition,
+			_next_entity_id,
+			slot.slot_id,
+			slot.logical_x,
+			slot.logical_y,
+		))
+		_next_entity_id += 1
+
+
+func _find_slot(slot_id: StringName) -> BuildSlotDefinition:
+	for slot: BuildSlotDefinition in _map.build_slots:
+		if slot.slot_id == slot_id:
+			return slot
+	return null
+
+
+func _find_unit(entity_id: int) -> UnitState:
+	for unit: UnitState in _units:
+		if unit.entity_id == entity_id:
+			return unit
+	return null

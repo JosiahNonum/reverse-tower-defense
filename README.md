@@ -6,7 +6,7 @@ A single-player reverse tower defense game in which the player authors attack wa
 
 The project has a ratified v0 product contract and architecture baseline. The pinned v0 stack is Godot 4.7.1 with statically typed GDScript, targeting Windows desktop first.
 
-The non-gameplay M1 foundation is complete: the project has a dependency-free test runner, headless seeded rules primitives, validated content, an explicit snapshot-driven composition/presentation seam, versioned diagnostic replay contracts, and verified Windows export/launch commands. M2 fixed-defense gameplay is underway with validated wave spawn schedules, authored lane-graph movement, logical entity views, and exactly-once core leaks.
+The non-gameplay M1 foundation is complete: the project has a dependency-free test runner, headless seeded rules primitives, validated content, an explicit snapshot-driven composition/presentation seam, versioned diagnostic replay contracts, and verified Windows export/launch commands. M2 fixed-defense gameplay now includes validated spawn schedules, authored lane movement, exactly-once leaks, deterministic tower targeting, staged instant attacks, armor/penetration, splash, Control Slow, cooldowns, and death resolution.
 
 ## Plans
 

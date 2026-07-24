@@ -234,6 +234,8 @@ M1.4 implements this boundary through the validated `ContentCatalog` and the che
 
 M2.1 adds match-owned `UnitState` route position, `UnitSpawnSchedule`, `LaneMovementSystem`, and `FixedDefenseSimulation`. The schedule validates a complete wave before producing spawns. Movement consumes an integer budget, may enter multiple edges in one tick, and derives integer logical coordinates from authored nodes without scene or curve authority. Spawn, edge-entry, and leak events retain tick-plus-ordinal ordering; arrivals are staged and leak in entity-ID order.
 
+M2.2 adds match-owned `TowerState`, typed `AttackIntent`, and `TowerTargetingSystem` contracts to `FixedDefenseSimulation`. Ready towers select from the same post-movement unit state using inclusive squared range and complete Rapid/Splash/Control/Anti-armor comparators. Attacks stage in tower-ID order, splash victims in unit-ID order, and intents resolve by tower ID, attack ordinal, then target ID before stable death resolution. Slow is staged during the attack tick and first affects movement at the next start-of-tick status stage.
+
 ## 7. Godot application and scene architecture
 
 The initial scene tree should stay shallow:

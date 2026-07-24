@@ -281,6 +281,8 @@ Purpose: prove the core simulation and readable combat before introducing adapti
 
 M2.1 implements the first headless slice: normalized wave entries validate unit/route IDs and 5/15/30-tick spacing atomically; match-owned units move by integer edge progress across authored branches and merges; remainder carries across edges; logical views derive from graph coordinates; and core arrivals resolve exactly once in stable entity-ID order.
 
+M2.2 extends that slice with match-owned tower deployments and cooldowns, inclusive integer range, the four complete target comparators, attack-time splash victim capture, tower/attack/target intent ordering, flat armor and penetration, next-tick non-stacking Control Slow, deterministic retargeting, and deaths after all staged attacks resolve. Cosmetic projectiles remain outside authority.
+
 Outputs:
 
 - Authored lane-graph movement

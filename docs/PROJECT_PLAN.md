@@ -824,7 +824,7 @@ The M0 product contract was accepted on 2026-07-22:
 4. **M0.5 — combat vocabulary and counters:** ratified.
 5. **M0.6 — defender knowledge, fairness, and difficulty:** ratified.
 
-M0.1 ratifies these decisions as one combined v0 scope with the non-goals in this plan and the capability trace in the MVP development plan. M1.0 ratified the simulation architecture baseline, fixed-tick direction, content policy, initial testing direction, scene boundary, and replay scope. M1 completed the focused ADRs and executable foundation evidence on 2026-07-24. M2.1 now implements the ratified spawn-spacing, immutable-route, authored-edge movement, branch/merge, passing, logical-position, and exactly-once leak rules as a headless fixed-defense slice. Theme/tone and detailed presentation direction remain open only where they do not change these product or architecture contracts.
+M0.1 ratifies these decisions as one combined v0 scope with the non-goals in this plan and the capability trace in the MVP development plan. M1.0 ratified the simulation architecture baseline, fixed-tick direction, content policy, initial testing direction, scene boundary, and replay scope. M1 completed the focused ADRs and executable foundation evidence on 2026-07-24. M2.1 implements the ratified movement/leak rules, and M2.2 implements inclusive targeting, all four comparator families, staged attacks, cadence, armor/penetration, splash, Control Slow, overkill/death order, and retargeting as headless fixed-defense rules. Theme/tone and detailed presentation direction remain open only where they do not change these product or architecture contracts.
 
 ## 14. Reference points
 

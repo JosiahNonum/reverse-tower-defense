@@ -88,6 +88,13 @@ func get_unit(unit_id: StringName) -> UnitDefinition:
 	return null
 
 
+func get_tower(tower_id: StringName) -> TowerDefinition:
+	for tower: TowerDefinition in towers:
+		if tower.content_id == tower_id:
+			return tower
+	return null
+
+
 func get_map(map_id: StringName) -> MapDefinition:
 	for map: MapDefinition in maps:
 		if map.content_id == map_id:
@@ -186,7 +193,7 @@ func _validate_unit(unit: UnitDefinition, result: ContentValidationResult) -> vo
 func _validate_tower(tower: TowerDefinition, result: ContentValidationResult) -> void:
 	_validate_nonnegative(tower.cost, "%s.cost" % tower.content_id, result)
 	_validate_positive(tower.range, "%s.range" % tower.content_id, result)
-	_validate_nonnegative(tower.damage, "%s.damage" % tower.content_id, result)
+	_validate_positive(tower.damage, "%s.damage" % tower.content_id, result)
 	_validate_positive(tower.cooldown_ticks, "%s.cooldown_ticks" % tower.content_id, result)
 	_validate_nonnegative(tower.splash_radius, "%s.splash_radius" % tower.content_id, result)
 	_validate_nonnegative(tower.slow_numerator, "%s.slow_numerator" % tower.content_id, result)
