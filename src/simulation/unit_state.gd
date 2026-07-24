@@ -10,6 +10,9 @@ var armor: int
 var base_speed_per_tick: int
 var movement_speed_per_tick: int
 var leak_damage: int
+var rally_range: int
+var rally_numerator: int
+var rally_denominator: int
 var route_id: StringName:
 	get:
 		return _route_id
@@ -51,6 +54,9 @@ func _init(
 	base_speed_per_tick = definition.speed_per_tick
 	movement_speed_per_tick = definition.speed_per_tick
 	leak_damage = definition.leak_damage
+	rally_range = definition.rally_range
+	rally_numerator = definition.rally_numerator
+	rally_denominator = definition.rally_denominator
 	route_id = assigned_route_id
 	scheduled_spawn_tick = spawn_tick
 
@@ -85,6 +91,23 @@ func begin_tick_status_stage() -> void:
 		_pending_slow_duration_ticks = 0
 	elif slow_remaining_ticks > 0:
 		slow_remaining_ticks -= 1
+
+
+func has_rally_aura() -> bool:
+	return rally_range > 0 and rally_numerator > 0 and rally_denominator > 0
+
+
+func apply_rally_for_tick(numerator: int, denominator: int) -> void:
+	assert(numerator > 0, "rally numerator must be positive")
+	assert(denominator > 0, "rally denominator must be positive")
+	set_movement_speed_for_tick(IntegerMath.multiply_ratio_floor(
+		movement_speed_per_tick,
+		numerator,
+		denominator,
+	))
+
+
+func apply_active_slow_for_tick() -> void:
 	if slow_remaining_ticks > 0:
 		set_movement_speed_for_tick(IntegerMath.multiply_ratio_floor(
 			movement_speed_per_tick,

@@ -283,6 +283,8 @@ M2.1 implements the first headless slice: normalized wave entries validate unit/
 
 M2.2 extends that slice with match-owned tower deployments and cooldowns, inclusive integer range, the four complete target comparators, attack-time splash victim capture, tower/attack/target intent ordering, flat armor and penetration, next-tick non-stacking Control Slow, deterministic retargeting, and deaths after all staged attacks resolve. Cosmetic projectiles remain outside authority.
 
+M2.3 completes the initial combat vocabulary in executable scenarios. Support Rally is recomputed from authoritative logical positions at the start of each tick, excludes its source, applies once when multiple sources overlap, and composes before Slow with integer floor rounding. The checked archetype matrix uses the real content catalog to prove all four unit and four base tower identities, their upgrade shape, intended strengths and weaknesses, proximity/spacing counterplay, and the absence of unsupported v0 mechanics.
+
 Outputs:
 
 - Authored lane-graph movement

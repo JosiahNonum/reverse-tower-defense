@@ -236,6 +236,8 @@ M2.1 adds match-owned `UnitState` route position, `UnitSpawnSchedule`, `LaneMove
 
 M2.2 adds match-owned `TowerState`, typed `AttackIntent`, and `TowerTargetingSystem` contracts to `FixedDefenseSimulation`. Ready towers select from the same post-movement unit state using inclusive squared range and complete Rapid/Splash/Control/Anti-armor comparators. Attacks stage in tower-ID order, splash victims in unit-ID order, and intents resolve by tower ID, attack ordinal, then target ID before stable death resolution. Slow is staged during the attack tick and first affects movement at the next start-of-tick status stage.
 
+M2.3 completes Support as a match-owned unit behavior. The simulation resets tick speed and activates staged statuses, finds living Rally sources and targets from integer logical positions, applies at most one Rally multiplier per target using the lowest stable source ID, then applies active Slow. Ordered `rally_applied` events expose every contributing source ID without making telemetry authoritative. The checked real-content scenario matrix guards the four base units, four base towers, one-step upgrade contract, counter interactions, and supported-mechanic boundaries.
+
 ## 7. Godot application and scene architecture
 
 The initial scene tree should stay shallow:

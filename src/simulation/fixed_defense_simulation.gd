@@ -8,6 +8,7 @@ const EVENT_UNIT_LEAKED: StringName = &"unit_leaked"
 const EVENT_TOWER_ATTACKED: StringName = &"tower_attacked"
 const EVENT_UNIT_DAMAGED: StringName = &"unit_damaged"
 const EVENT_SLOW_STAGED: StringName = &"slow_staged"
+const EVENT_RALLY_APPLIED: StringName = &"rally_applied"
 const EVENT_UNIT_DIED: StringName = &"unit_died"
 
 var _root_seed: int
@@ -165,6 +166,44 @@ func _apply_start_tick_statuses() -> void:
 	for unit: UnitState in _units:
 		if unit.is_active():
 			unit.begin_tick_status_stage()
+	var rally_sources_by_target: Dictionary[int, Array] = {}
+	var first_rally_source_by_target: Dictionary[int, UnitState] = {}
+	for source: UnitState in _units:
+		if not source.is_active() or not source.has_rally_aura():
+			continue
+		var source_position: Vector2i = _movement.logical_position(source)
+		for target: UnitState in _units:
+			if not target.is_active() or target.entity_id == source.entity_id:
+				continue
+			var target_position: Vector2i = _movement.logical_position(target)
+			var distance_squared: int = IntegerMath.squared_distance(
+				source_position.x,
+				source_position.y,
+				target_position.x,
+				target_position.y,
+			)
+			if not IntegerMath.is_inside_inclusive_range(
+				distance_squared,
+				source.rally_range,
+			):
+				continue
+			if not rally_sources_by_target.has(target.entity_id):
+				rally_sources_by_target[target.entity_id] = []
+				first_rally_source_by_target[target.entity_id] = source
+			rally_sources_by_target[target.entity_id].append(source.entity_id)
+	for target: UnitState in _units:
+		if not target.is_active():
+			continue
+		if rally_sources_by_target.has(target.entity_id):
+			var source: UnitState = first_rally_source_by_target[target.entity_id]
+			target.apply_rally_for_tick(source.rally_numerator, source.rally_denominator)
+			_emit_event(EVENT_RALLY_APPLIED, {
+				"target_unit_id": target.entity_id,
+				"source_unit_ids": rally_sources_by_target[target.entity_id],
+				"numerator": source.rally_numerator,
+				"denominator": source.rally_denominator,
+			})
+		target.apply_active_slow_for_tick()
 
 
 func _stage_attacks() -> Array[AttackIntent]:
