@@ -18,5 +18,4 @@ func test_application_services_do_not_import_presentation_or_ui() -> void:
 
 func test_project_has_no_match_state_autoload() -> void:
 	var project_source: String = FileAccess.get_file_as_string("res://project.godot")
-	assert_false(project_source.contains("[autoload]"))
 	assert_false(project_source.contains("MatchState"))

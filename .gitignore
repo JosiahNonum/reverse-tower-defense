@@ -6,6 +6,9 @@
 /build/
 /dist/
 
+# Godot MCP runtime screenshots and cache
+/addons/godot_mcp/cache/
+
 # Local tooling and secrets
 .env
 .env.*
@@ -16,4 +19,3 @@
 .DS_Store
 Thumbs.db
 Desktop.ini
-
