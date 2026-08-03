@@ -53,7 +53,9 @@ func test_main_scene_composes_coordinator_and_battlefield_explicitly() -> void:
 	main.compose()
 
 	var coordinator := main.get_node("MatchCoordinator") as MatchCoordinator
-	var battlefield := main.get_node("MatchScreen/BattlefieldView") as BattlefieldView
+	var battlefield := main.get_node(
+		"MatchScreen/SafeArea/RootLayout/Body/BattlefieldPanel/MapLayout/DefenseMapView/BattlefieldView",
+	) as BattlefieldView
 	assert_true(coordinator.is_initialized())
 	assert_equal(coordinator.get_rules_id(), &"rules.v0")
 	assert_equal(coordinator.get_content_fingerprint().length(), 64)

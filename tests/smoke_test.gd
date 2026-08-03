@@ -19,7 +19,9 @@ func _initialize() -> void:
 		scene_instance.free()
 		quit(1)
 		return
-	if scene_instance.get_node_or_null("MatchScreen/BattlefieldView") == null:
+	if scene_instance.get_node_or_null(
+		"MatchScreen/SafeArea/RootLayout/Body/BattlefieldPanel/MapLayout/DefenseMapView/BattlefieldView",
+	) == null:
 		push_error("SMOKE FAIL: Main does not contain BattlefieldView")
 		scene_instance.free()
 		quit(1)

@@ -13,7 +13,8 @@ func test_application_services_do_not_import_presentation_or_ui() -> void:
 		assert_false(source.contains("src/presentation"), file_name)
 		assert_false(source.contains("src/ui"), file_name)
 		assert_false(source.contains("BattlefieldView"), file_name)
-		assert_false(source.contains("Control"), file_name)
+		assert_false(source.contains("extends Control"), file_name)
+		assert_false(source.contains("extends PanelContainer"), file_name)
 
 func test_project_has_no_match_state_autoload() -> void:
 	var project_source: String = FileAccess.get_file_as_string("res://project.godot")

@@ -1,7 +1,7 @@
 # v0 Detailed Architecture Plan
 
-Status: ratified v0 baseline; focused M1 ADRs and spikes in progress
-Last updated: 2026-07-22
+Status: ratified v0 baseline; M1 and M2 complete; M3 player-facing application work in progress
+Last updated: 2026-07-24
 Scope: single-player Windows v0 MVP using Godot 4.7 and GDScript
 
 This document turns the product and milestone plans into an implementable architecture. The M0 product inputs and the M1.0 technical baseline are ratified. Focused ADRs and executable spikes may refine implementation details without weakening the headless rules seam or honest-AI boundary.
@@ -272,6 +272,12 @@ Main (composition root)
 One visual node per active unit is acceptable for the initial measured envelope. If profiling disproves that assumption, presentation can pool views or batch sprites without rewriting the rules core.
 
 M1.6 implements this seam with `MainCompositionRoot`, `MatchCoordinator`, and `BattlefieldView`. `Main` explicitly loads and validates the content catalog, creates the match service, and connects the coordinator's copied view/event publication to presentation. The battlefield reconciles placeholder visual nodes by stable entity ID; it never receives `MatchState`. Contract tests keep simulation independent of application/presentation/UI, keep the coordinator independent of presentation/UI, and reject a match-state autoload.
+
+M3.1 extends the seam without moving authority into the scene tree. `DefenseInspectionBuilder` consumes validated immutable content plus copied revealed `TowerDeployment` values and produces a `DefenseInspectionModel` composed of copied `DefenseTowerInspection` and `RouteThreatInspection` values. `DefenseMapView` renders the map, qualitative segment bands, selected range, and tower selection; `DefenseInspectionPanel` renders factual type, target policy, upgrade, route, and segment details. The coverage calculation may use floating-point segment geometry because it is a labeled planning visualization, never a combat range query or result forecast. Open/Guarded/Fortified means zero, one, or at least two overlapping tower ranges. It does not include damage, cadence, armor, target availability, splash density, Slow, Rally, or future unit timing.
+
+The current `Main` composition supplies a five-placement scripted reveal only to make M3.1 inspectable. M3.6 will replace that temporary composition input with the scripted-defense match service and shared legal defense-command path. Responsive containers retain the 1280x720 base and are visually checked at 1440x900 and 1024x768; inspection details scroll rather than changing rule state or hiding failures.
+
+M3.2 adds a separate application-owned `WaveDraft` seam. It stores editable `WaveDraftEntry` values with temporary stable IDs, allowed unit/route/spacing data, and reversible snapshots. It derives cost and round budget from `ContentCatalog` plus `MatchRulesDefinition`, reports a typed `WaveDraftValidation`, and has no reference to `MatchState`, presentation, or UI. The `WaveComposerPanel` is a consumer of that draft contract: it enters only after the existing player `BEGIN_WAVE_AUTHORING` transition, renders catalog costs and validation, and may never spend budget, create a schedule, or commit a command. M3.3 will add route assignment and atomic shared-gateway commit rather than extending this editor into a second rules implementation.
 
 ## 8. Match lifecycle
 

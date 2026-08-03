@@ -307,6 +307,8 @@ M2 is complete. M3 is the next implementation milestone.
 
 Purpose: validate the player experience against a fixed or scripted defense.
 
+M3.1 implements the first player-facing planning surface. An application-owned `DefenseInspectionModel` copies factual tower, route, range, target-policy, and upgrade values from validated content plus the revealed defense placement. Presentation draws selected tower ranges and route segments; the qualitative Open/Guarded/Fortified bands count overlapping ranges and never claim future damage. The initial reveal identifies Chokepoint → Core and Merge → Chokepoint as the two most defended shared segments. Mouse and keyboard inspection, copied-model isolation, stable threat ordering, minimum layout constraints, and 1280x720, 1440x900, and 1024x768 captures are covered by the M3.1 verification record.
+
 Outputs:
 
 - Defense inspection and threat visualization
@@ -318,6 +320,12 @@ Outputs:
 - Five-round economy, win/loss, and restart flow using a scripted defense
 
 Exit gate: a player can complete a five-round match and explain the primary reason each wave succeeded or failed.
+
+M3 progress through 2026-07-24:
+
+- M3.1 completed defense inspection and honest qualitative threat visualization. Verification evidence is recorded in [M3 Player-Authored Match Verification](M3_VERIFICATION.md).
+- M3.2 implementation is ready for manual review: the application-owned composer supports catalog-costed add/remove, stable deployment reordering, 5/15/30-tick spacing, undo/redo, visible budget/entry totals, and actionable over-budget feedback. It defaults entries to a valid route but deliberately leaves route assignment and commit to M3.3.
+- M3.3 is next once the M3.2 human click-through confirms two distinct valid waves; match phases, post-wave analysis, and five-round integration remain downstream.
 
 ### M4 — Adaptive defender
 

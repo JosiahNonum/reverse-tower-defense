@@ -1,7 +1,7 @@
 # Reverse Tower Defense — Living Project Plan
 
-Status: M0 product contract and M1 architecture baseline ratified; M1 foundation in progress
-Last updated: 2026-07-22
+Status: M0 and M1 ratified; M2 complete; M3 player-authored match in progress
+Last updated: 2026-07-24
 
 Execution planning is tracked in [V0_MVP_DEVELOPMENT_PLAN.md](V0_MVP_DEVELOPMENT_PLAN.md).
 
@@ -747,6 +747,10 @@ Exit condition: a headless or minimally rendered scenario can produce a reproduc
 - Complete an end-to-end match against a fixed valid defense.
 
 Exit condition: the player can author and evaluate waves through the actual game interface.
+
+M3.1 completes the first Stage 2 slice. The defense reveal now presents the authored two-route map, five visible tower placements, factual selected-tower range, targeting policy, one-step upgrade, route coverage, and covered segments. Its Open/Guarded/Fortified overlay counts overlapping tower ranges only and explicitly disclaims exact damage prediction; the two highest-overlap shared segments are called out as planning reads. Mouse selection and left/right keyboard cycling use copied application view data, while the simulation remains headless and authoritative. Layout captures at 1280x720, 1440x900, and 1024x768 are retained as repeatable generated checks through `scripts/capture-inspection.ps1`.
+
+M3.2 establishes the editable wave-composer boundary. `WaveDraft` owns only application-local entries, stable draft IDs, catalog-derived costs, default valid routes, permitted 5/15/30-tick spacing, and undo/redo snapshots; no draft gesture mutates `MatchState`. The authoring screen begins from the existing player transition out of Defense Reveal, exposes four catalog-backed add buttons, editable order and spacing, current cost/budget/remaining points, entry count, and actionable over-budget feedback. It intentionally defers route selection and authoritative commit to M3.3. Automated authoring flows cover two distinct valid waves, undo/redo, ordering, spacing, and over-budget correction; a human click-through remains the final M3.2 review item.
 
 ### Stage 3 — Adaptive defender
 
