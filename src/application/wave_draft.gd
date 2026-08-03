@@ -140,6 +140,26 @@ func set_spacing(entry_id: int, spacing_ticks: int) -> WaveDraftEditResult:
 	return WaveDraftEditResult.accept("Updated spacing.")
 
 
+func set_route(entry_id: int, route_id: StringName) -> WaveDraftEditResult:
+	var index: int = _index_of(entry_id)
+	if index < 0:
+		return WaveDraftEditResult.reject(
+			WaveDraftEditResult.CODE_UNKNOWN_ENTRY,
+			"That draft entry no longer exists.",
+		)
+	var unit: UnitDefinition = _catalog.get_unit(_entries[index].get_unit_id())
+	if unit == null or not unit.allowed_route_ids.has(route_id):
+		return WaveDraftEditResult.reject(
+			WaveDraftEditResult.CODE_INVALID_ROUTE,
+			"That unit cannot use the selected route.",
+		)
+	if _entries[index].get_route_id() == route_id:
+		return WaveDraftEditResult.accept("Route is already selected.")
+	_push_undo_snapshot()
+	_entries[index].set_route_id(route_id)
+	return WaveDraftEditResult.accept("Updated route.")
+
+
 func clear() -> WaveDraftEditResult:
 	if _entries.is_empty():
 		return WaveDraftEditResult.accept("Draft is already clear.")

@@ -15,9 +15,22 @@ var _inspection_model: DefenseInspectionModel
 var _catalog: ContentCatalog
 var _rules: MatchRulesDefinition
 var _next_command_id: int = 1
+var _playback := PlaybackController.new()
 
 func _ready() -> void:
 	compose()
+
+
+func _process(delta: float) -> void:
+	if not _is_composed:
+		return
+	var coordinator := get_node("MatchCoordinator") as MatchCoordinator
+	if coordinator.get_current_view().get_phase() != MatchPhase.RESOLVING:
+		return
+	for tick: int in _playback.consume_ticks(delta, _rules.ticks_per_second):
+		if coordinator.advance_resolution_tick():
+			_finish_resolution()
+			return
 
 func compose() -> void:
 	if _is_composed:
@@ -46,6 +59,7 @@ func compose() -> void:
 	inspection_panel.configure(_inspection_model)
 	composer_panel.configure(_catalog, _rules)
 	coordinator.initialize(_catalog, _rules, DEFAULT_ROOT_SEED)
+	coordinator.configure_fixed_defense(_initial_defense_deployments())
 	var reveal_result: CommandResult = coordinator.apply_phase_command(PhaseCommand.new(
 		_next_command_id,
 		PhaseCommand.COMPLETE_INITIAL_DEFENSE,
@@ -55,6 +69,72 @@ func compose() -> void:
 	assert(reveal_result.is_accepted, "initial scripted defense must reach defense reveal")
 	_next_command_id += 1
 	%BeginAuthoringButton.pressed.connect(_begin_authoring)
+	composer_panel.commit_requested.connect(_commit_wave)
+	_is_composed = true
+
+
+func _finish_resolution() -> void:
+	var coordinator := get_node("MatchCoordinator") as MatchCoordinator
+	var result: CommandResult = coordinator.apply_phase_command(PhaseCommand.new(
+		_next_command_id, PhaseCommand.COMPLETE_RESOLUTION, MatchPhase.RESOLVING, PhaseCommand.ACTOR_SYSTEM,
+	))
+	if result.is_accepted:
+		_next_command_id += 1
+		%PlaybackControls.hide()
+		var analysis = coordinator.get_post_wave_analysis()
+		%PhaseValue.text = "ANALYSIS · %d leaks · core %d" % [analysis.get_leak_count(), analysis.get_core_integrity()]
+		var damage_by_tower: Dictionary = analysis.get_damage_by_tower()
+		var damage_total: int = 0
+		for amount: int in damage_by_tower.values():
+			damage_total += amount
+		%MapHint.text = "ANALYSIS  ·  %d leaks  ·  %d survivors  ·  %d effective damage  ·  core %d" % [
+			analysis.get_leak_count(), analysis.get_survivor_count(), damage_total, analysis.get_core_integrity(),
+		]
+		%ContinueButton.text = "RESTART" if coordinator.get_match_outcome() != &"" else "NEXT ROUND"
+		%ContinueButton.show()
+
+
+func _on_pause_button_pressed() -> void:
+	_playback.set_paused(not _playback.is_paused())
+	%PauseButton.text = "RESUME" if _playback.is_paused() else "PAUSE"
+
+
+func _on_speed_1_button_pressed() -> void:
+	_playback.set_speed(1)
+
+
+func _on_speed_2_button_pressed() -> void:
+	_playback.set_speed(2)
+
+
+func _on_speed_4_button_pressed() -> void:
+	_playback.set_speed(4)
+
+
+func _on_continue_button_pressed() -> void:
+	var coordinator := get_node("MatchCoordinator") as MatchCoordinator
+	if coordinator.get_current_view().get_phase() == MatchPhase.MATCH_END:
+		coordinator.restart()
+		var reveal_result: CommandResult = coordinator.apply_phase_command(PhaseCommand.new(
+			_next_command_id, PhaseCommand.COMPLETE_INITIAL_DEFENSE, MatchPhase.INITIAL_DEFENSE, PhaseCommand.ACTOR_SYSTEM,
+		))
+		assert(reveal_result.is_accepted, "restart must return to defense reveal")
+		_next_command_id += 1
+	else:
+		var result: CommandResult = coordinator.complete_analysis(_next_command_id)
+		assert(result.is_accepted, "analysis must advance through the scripted match")
+		_next_command_id += 2
+	%ContinueButton.hide()
+	if coordinator.get_current_view().get_phase() == MatchPhase.MATCH_END:
+		%BeginAuthoringButton.hide()
+		%ContinueButton.text = "RESTART"
+		%ContinueButton.show()
+		return
+	%DefenseInspectionPanel.show()
+	%BeginAuthoringButton.show()
+	%MapHint.text = "Numbers count overlapping tower ranges. Colors are qualitative coverage—not a damage forecast. Use ← / → after selecting the map."
+	get_wave_composer_panel().configure(_catalog, _rules, coordinator.get_round_index())
+	%PhaseValue.text = "DEFENSE REVEAL · ROUND %d" % coordinator.get_round_index()
 	%PhaseValue.text = "DEFENSE REVEAL  ·  ROUND 1"
 	_is_composed = true
 
@@ -106,3 +186,26 @@ func _initial_defense_deployments() -> Array[TowerDeployment]:
 	for values: Array in INITIAL_DEFENSE:
 		deployments.append(TowerDeployment.new(values[0], values[1]))
 	return deployments
+
+
+func _commit_wave(entries: Array[WaveDraftEntry]) -> void:
+	var coordinator := get_node("MatchCoordinator") as MatchCoordinator
+	var result: CommandResult = coordinator.commit_wave(PhaseCommand.new(
+		_next_command_id,
+		PhaseCommand.COMMIT_WAVE,
+		MatchPhase.WAVE_AUTHORING,
+		PhaseCommand.ACTOR_PLAYER,
+	), entries)
+	if not result.is_accepted:
+		return
+	_next_command_id += 1
+	var begin_result: CommandResult = coordinator.begin_resolution(PhaseCommand.new(
+		_next_command_id,
+		PhaseCommand.BEGIN_RESOLUTION,
+		MatchPhase.WAVE_COMMITTED,
+		PhaseCommand.ACTOR_SYSTEM,
+	))
+	assert(begin_result.is_accepted, "accepted wave must begin resolution")
+	_next_command_id += 1
+	%WaveComposerPanel.hide()
+	%PlaybackControls.show()

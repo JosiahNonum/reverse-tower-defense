@@ -36,6 +36,7 @@ func _init(
 	schedule: SpawnScheduleResult,
 	tower_deployments: Array[TowerDeployment] = [],
 	record_events: bool = true,
+	initial_core_integrity: int = -1,
 ) -> void:
 	assert(schedule.is_accepted, "fixed-defense simulation requires a valid schedule")
 	var map: MapDefinition = catalog.get_map(rules.map_id)
@@ -46,7 +47,7 @@ func _init(
 	_map = map
 	_movement = LaneMovementSystem.new(map)
 	_targeting = TowerTargetingSystem.new(_movement)
-	_core_integrity = rules.core_health
+	_core_integrity = rules.core_health if initial_core_integrity < 0 else initial_core_integrity
 	_record_events = record_events
 	_deploy_towers(tower_deployments)
 	for spawn: ScheduledUnitSpawn in schedule.spawns:

@@ -116,6 +116,35 @@ func test_composer_panel_transitions_from_reveal_and_edits_a_wave() -> void:
 	main.free()
 
 
+func test_route_assignment_and_commit_produce_immutable_resolution_input() -> void:
+	var catalog := ContentCatalog.load_from_directory("res://content")
+	var rules: MatchRulesDefinition = catalog.rules[0]
+	var coordinator := MatchCoordinator.new()
+	coordinator.initialize(catalog, rules, 9)
+	coordinator.configure_fixed_defense([])
+	assert_true(coordinator.apply_phase_command(PhaseCommand.new(
+		1, PhaseCommand.COMPLETE_INITIAL_DEFENSE, MatchPhase.INITIAL_DEFENSE, PhaseCommand.ACTOR_SYSTEM,
+	)).is_accepted)
+	assert_true(coordinator.apply_phase_command(PhaseCommand.new(
+		2, PhaseCommand.BEGIN_WAVE_AUTHORING, MatchPhase.DEFENSE_REVEAL, PhaseCommand.ACTOR_PLAYER,
+	)).is_accepted)
+	var draft := WaveDraft.new(catalog, rules, 1)
+	assert_true(draft.add_unit(&"unit.runner").is_accepted)
+	var entry_id: int = draft.get_entries()[0].get_entry_id()
+	assert_true(draft.set_route(entry_id, &"route.south").is_accepted)
+	assert_true(coordinator.commit_wave(PhaseCommand.new(
+		3, PhaseCommand.COMMIT_WAVE, MatchPhase.WAVE_AUTHORING, PhaseCommand.ACTOR_PLAYER,
+	), draft.get_entries()).is_accepted)
+	assert_equal(coordinator.get_current_view().get_phase(), MatchPhase.WAVE_COMMITTED)
+	assert_equal(coordinator.get_active_simulation().get_units().size(), 0)
+	assert_true(draft.set_route(entry_id, &"route.north").is_accepted)
+	assert_true(coordinator.begin_resolution(PhaseCommand.new(
+		4, PhaseCommand.BEGIN_RESOLUTION, MatchPhase.WAVE_COMMITTED, PhaseCommand.ACTOR_SYSTEM,
+	)).is_accepted)
+	coordinator.advance_resolution_tick()
+	assert_equal(coordinator.get_active_simulation().get_units()[0].route_id, &"route.south")
+
+
 func _new_draft() -> WaveDraft:
 	var catalog := ContentCatalog.load_from_directory("res://content")
 	return WaveDraft.new(catalog, catalog.rules[0], 1)

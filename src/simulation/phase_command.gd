@@ -4,6 +4,12 @@ extends RefCounted
 
 const COMPLETE_INITIAL_DEFENSE: StringName = &"complete_initial_defense"
 const BEGIN_WAVE_AUTHORING: StringName = &"begin_wave_authoring"
+const COMMIT_WAVE: StringName = &"commit_wave"
+const BEGIN_RESOLUTION: StringName = &"begin_resolution"
+const COMPLETE_RESOLUTION: StringName = &"complete_resolution"
+const BEGIN_ANALYSIS: StringName = &"begin_analysis"
+const BEGIN_NEXT_ROUND: StringName = &"begin_next_round"
+const END_MATCH: StringName = &"end_match"
 
 const ACTOR_SYSTEM: StringName = &"system"
 const ACTOR_PLAYER: StringName = &"player"

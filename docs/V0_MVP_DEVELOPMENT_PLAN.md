@@ -323,9 +323,7 @@ Exit gate: a player can complete a five-round match and explain the primary reas
 
 M3 progress through 2026-07-24:
 
-- M3.1 completed defense inspection and honest qualitative threat visualization. Verification evidence is recorded in [M3 Player-Authored Match Verification](M3_VERIFICATION.md).
-- M3.2 implementation is ready for manual review: the application-owned composer supports catalog-costed add/remove, stable deployment reordering, 5/15/30-tick spacing, undo/redo, visible budget/entry totals, and actionable over-budget feedback. It defaults entries to a valid route but deliberately leaves route assignment and commit to M3.3.
-- M3.3 is next once the M3.2 human click-through confirms two distinct valid waves; match phases, post-wave analysis, and five-round integration remain downstream.
+- M3 is complete locally. Defense inspection, editable route/spacing/order authoring, atomic commit, fixed-tick playback, event-backed analysis, next-round progression, terminal outcomes, and restart are implemented and verified in [M3 Player-Authored Match Verification](M3_VERIFICATION.md).
 
 ### M4 — Adaptive defender
 

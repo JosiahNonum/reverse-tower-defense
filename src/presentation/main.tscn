@@ -122,6 +122,34 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 11
 text = "BEGIN AUTHORING"
 
+[node name="ContinueButton" type="Button" parent="MatchScreen/SafeArea/RootLayout/Header/PhaseBlock"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+text = "NEXT ROUND"
+
+[node name="PlaybackControls" type="HBoxContainer" parent="MatchScreen/SafeArea/RootLayout/Header/PhaseBlock"]
+visible = false
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="PauseButton" type="Button" parent="MatchScreen/SafeArea/RootLayout/Header/PhaseBlock/PlaybackControls"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "PAUSE"
+
+[node name="Speed1Button" type="Button" parent="MatchScreen/SafeArea/RootLayout/Header/PhaseBlock/PlaybackControls"]
+layout_mode = 2
+text = "1x"
+
+[node name="Speed2Button" type="Button" parent="MatchScreen/SafeArea/RootLayout/Header/PhaseBlock/PlaybackControls"]
+layout_mode = 2
+text = "2x"
+
+[node name="Speed4Button" type="Button" parent="MatchScreen/SafeArea/RootLayout/Header/PhaseBlock/PlaybackControls"]
+layout_mode = 2
+text = "4x"
+
 [node name="Body" type="HBoxContainer" parent="MatchScreen/SafeArea/RootLayout"]
 layout_mode = 2
 size_flags_vertical = 3
@@ -168,6 +196,7 @@ script = ExtResource("4_map")
 script = ExtResource("3_battlefield")
 
 [node name="MapHint" type="Label" parent="MatchScreen/SafeArea/RootLayout/Body/BattlefieldPanel/MapLayout"]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.49, 0.58, 0.69, 1)
 theme_override_font_sizes/font_size = 11
@@ -477,11 +506,27 @@ theme_override_font_sizes/font_size = 10
 text = "Entries begin on a valid default route. Route assignment and authoritative commit arrive in M3.3."
 autowrap_mode = 2
 
+[node name="Route" type="OptionButton" parent="MatchScreen/SafeArea/RootLayout/Body/WaveComposerPanel/Scroll/Margin/Details"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="CommitButton" type="Button" parent="MatchScreen/SafeArea/RootLayout/Body/WaveComposerPanel/Scroll/Margin/Details"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "COMMIT WAVE"
+
 [connection signal="item_selected" from="MatchScreen/SafeArea/RootLayout/Body/WaveComposerPanel/Scroll/Margin/Details/EntryList" to="MatchScreen/SafeArea/RootLayout/Body/WaveComposerPanel" method="_on_entry_list_item_selected"]
 [connection signal="item_selected" from="MatchScreen/SafeArea/RootLayout/Body/WaveComposerPanel/Scroll/Margin/Details/Spacing" to="MatchScreen/SafeArea/RootLayout/Body/WaveComposerPanel" method="_on_spacing_item_selected"]
+[connection signal="item_selected" from="MatchScreen/SafeArea/RootLayout/Body/WaveComposerPanel/Scroll/Margin/Details/Route" to="MatchScreen/SafeArea/RootLayout/Body/WaveComposerPanel" method="_on_route_item_selected"]
 [connection signal="pressed" from="MatchScreen/SafeArea/RootLayout/Body/WaveComposerPanel/Scroll/Margin/Details/OrderControls/RemoveButton" to="MatchScreen/SafeArea/RootLayout/Body/WaveComposerPanel" method="_on_remove_button_pressed"]
 [connection signal="pressed" from="MatchScreen/SafeArea/RootLayout/Body/WaveComposerPanel/Scroll/Margin/Details/OrderControls/MoveUpButton" to="MatchScreen/SafeArea/RootLayout/Body/WaveComposerPanel" method="_on_move_up_button_pressed"]
 [connection signal="pressed" from="MatchScreen/SafeArea/RootLayout/Body/WaveComposerPanel/Scroll/Margin/Details/OrderControls/MoveDownButton" to="MatchScreen/SafeArea/RootLayout/Body/WaveComposerPanel" method="_on_move_down_button_pressed"]
 [connection signal="pressed" from="MatchScreen/SafeArea/RootLayout/Body/WaveComposerPanel/Scroll/Margin/Details/HistoryControls/UndoButton" to="MatchScreen/SafeArea/RootLayout/Body/WaveComposerPanel" method="_on_undo_button_pressed"]
 [connection signal="pressed" from="MatchScreen/SafeArea/RootLayout/Body/WaveComposerPanel/Scroll/Margin/Details/HistoryControls/RedoButton" to="MatchScreen/SafeArea/RootLayout/Body/WaveComposerPanel" method="_on_redo_button_pressed"]
 [connection signal="pressed" from="MatchScreen/SafeArea/RootLayout/Body/WaveComposerPanel/Scroll/Margin/Details/HistoryControls/ClearButton" to="MatchScreen/SafeArea/RootLayout/Body/WaveComposerPanel" method="_on_clear_button_pressed"]
+[connection signal="pressed" from="MatchScreen/SafeArea/RootLayout/Body/WaveComposerPanel/Scroll/Margin/Details/CommitButton" to="MatchScreen/SafeArea/RootLayout/Body/WaveComposerPanel" method="_on_commit_button_pressed"]
+[connection signal="pressed" from="MatchScreen/SafeArea/RootLayout/Header/PhaseBlock/PlaybackControls/PauseButton" to="." method="_on_pause_button_pressed"]
+[connection signal="pressed" from="MatchScreen/SafeArea/RootLayout/Header/PhaseBlock/PlaybackControls/Speed1Button" to="." method="_on_speed_1_button_pressed"]
+[connection signal="pressed" from="MatchScreen/SafeArea/RootLayout/Header/PhaseBlock/PlaybackControls/Speed2Button" to="." method="_on_speed_2_button_pressed"]
+[connection signal="pressed" from="MatchScreen/SafeArea/RootLayout/Header/PhaseBlock/PlaybackControls/Speed4Button" to="." method="_on_speed_4_button_pressed"]
+[connection signal="pressed" from="MatchScreen/SafeArea/RootLayout/Header/PhaseBlock/ContinueButton" to="." method="_on_continue_button_pressed"]

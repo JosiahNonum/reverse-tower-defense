@@ -8,6 +8,7 @@ const EVENT_TICK_ADVANCED: StringName = &"tick_advanced"
 var _root_seed: int
 var _phase: StringName = MatchPhase.INITIAL_DEFENSE
 var _tick: int = 0
+var _round_index: int = 1
 
 var _next_event_ordinal: int = 0
 var _next_entity_id: int = 1
@@ -64,6 +65,8 @@ func apply_phase_command(command: PhaseCommand) -> CommandResult:
 
 	var previous_phase: StringName = _phase
 	_phase = _destination_phase(command.command_type)
+	if command.command_type == PhaseCommand.BEGIN_NEXT_ROUND:
+		_round_index += 1
 	_accepted_command_ids[command.command_id] = true
 	_emit_event(EVENT_PHASE_CHANGED, {
 		"from": String(previous_phase),
@@ -96,6 +99,10 @@ func get_phase() -> StringName:
 
 func get_tick() -> int:
 	return _tick
+
+
+func get_round_index() -> int:
+	return _round_index
 
 
 func get_events() -> Array[DomainEvent]:
@@ -135,6 +142,18 @@ func _required_phase(command_type: StringName) -> StringName:
 			return MatchPhase.INITIAL_DEFENSE
 		PhaseCommand.BEGIN_WAVE_AUTHORING:
 			return MatchPhase.DEFENSE_REVEAL
+		PhaseCommand.COMMIT_WAVE:
+			return MatchPhase.WAVE_AUTHORING
+		PhaseCommand.BEGIN_RESOLUTION:
+			return MatchPhase.WAVE_COMMITTED
+		PhaseCommand.COMPLETE_RESOLUTION:
+			return MatchPhase.RESOLVING
+		PhaseCommand.BEGIN_ANALYSIS:
+			return MatchPhase.ANALYSIS
+		PhaseCommand.BEGIN_NEXT_ROUND:
+			return MatchPhase.ROUND_TRANSITION
+		PhaseCommand.END_MATCH:
+			return MatchPhase.ANALYSIS
 		_:
 			return &""
 
@@ -145,6 +164,12 @@ func _required_actor(command_type: StringName) -> StringName:
 			return PhaseCommand.ACTOR_SYSTEM
 		PhaseCommand.BEGIN_WAVE_AUTHORING:
 			return PhaseCommand.ACTOR_PLAYER
+		PhaseCommand.COMMIT_WAVE:
+			return PhaseCommand.ACTOR_PLAYER
+		PhaseCommand.BEGIN_RESOLUTION, PhaseCommand.COMPLETE_RESOLUTION, PhaseCommand.BEGIN_ANALYSIS, PhaseCommand.BEGIN_NEXT_ROUND:
+			return PhaseCommand.ACTOR_SYSTEM
+		PhaseCommand.END_MATCH:
+			return PhaseCommand.ACTOR_SYSTEM
 		_:
 			return &""
 
@@ -155,5 +180,17 @@ func _destination_phase(command_type: StringName) -> StringName:
 			return MatchPhase.DEFENSE_REVEAL
 		PhaseCommand.BEGIN_WAVE_AUTHORING:
 			return MatchPhase.WAVE_AUTHORING
+		PhaseCommand.COMMIT_WAVE:
+			return MatchPhase.WAVE_COMMITTED
+		PhaseCommand.BEGIN_RESOLUTION:
+			return MatchPhase.RESOLVING
+		PhaseCommand.COMPLETE_RESOLUTION:
+			return MatchPhase.ANALYSIS
+		PhaseCommand.BEGIN_ANALYSIS:
+			return MatchPhase.ROUND_TRANSITION
+		PhaseCommand.BEGIN_NEXT_ROUND:
+			return MatchPhase.DEFENSE_REVEAL
+		PhaseCommand.END_MATCH:
+			return MatchPhase.MATCH_END
 		_:
 			return _phase

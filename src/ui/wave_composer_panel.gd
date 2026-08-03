@@ -1,6 +1,7 @@
 class_name WaveComposerPanel
 extends PanelContainer
 
+signal commit_requested(entries: Array[WaveDraftEntry])
 
 var _catalog: ContentCatalog
 var _rules: MatchRulesDefinition
@@ -8,12 +9,13 @@ var _draft: WaveDraft
 var _selected_entry_id: int = -1
 
 
-func configure(catalog: ContentCatalog, rules: MatchRulesDefinition) -> void:
+func configure(catalog: ContentCatalog, rules: MatchRulesDefinition, round_index: int = 1) -> void:
 	_catalog = catalog
 	_rules = rules
-	_draft = WaveDraft.new(catalog, rules, 1)
+	_draft = WaveDraft.new(catalog, rules, round_index)
 	_build_unit_buttons()
 	_build_spacing_options()
+	_build_route_options()
 	_refresh()
 
 
@@ -75,6 +77,26 @@ func set_selected_spacing(spacing_ticks: int) -> WaveDraftEditResult:
 	return _apply_result(_draft.set_spacing(_selected_entry_id, spacing_ticks))
 
 
+func set_selected_route(route_id: StringName) -> WaveDraftEditResult:
+	_assert_configured()
+	if _selected_entry_id < 0:
+		return _apply_result(WaveDraftEditResult.reject(
+			WaveDraftEditResult.CODE_UNKNOWN_ENTRY,
+			"Select a draft entry before changing route.",
+		))
+	return _apply_result(_draft.set_route(_selected_entry_id, route_id))
+
+
+func request_commit() -> bool:
+	_assert_configured()
+	var validation: WaveDraftValidation = _draft.validate()
+	if not validation.is_valid():
+		%Feedback.text = validation.get_summary()
+		return false
+	commit_requested.emit(_draft.get_entries())
+	return true
+
+
 func undo() -> WaveDraftEditResult:
 	_assert_configured()
 	return _apply_result(_draft.undo())
@@ -115,6 +137,14 @@ func _build_spacing_options() -> void:
 func _add_spacing_option(label: String, spacing_ticks: int) -> void:
 	%Spacing.add_item(label)
 	%Spacing.set_item_metadata(%Spacing.item_count - 1, spacing_ticks)
+
+
+func _build_route_options() -> void:
+	%Route.clear()
+	var map: MapDefinition = _catalog.get_map(_rules.map_id)
+	for route: RouteDefinition in map.routes:
+		%Route.add_item(_humanize_id(route.route_id))
+		%Route.set_item_metadata(%Route.item_count - 1, route.route_id)
 
 
 func _apply_result(result: WaveDraftEditResult) -> WaveDraftEditResult:
@@ -176,6 +206,7 @@ func _refresh() -> void:
 	if selected_index >= 0:
 		%EntryList.select(selected_index)
 		_set_spacing_selection(entries[selected_index].get_spacing_after_previous())
+		_set_route_selection(entries[selected_index].get_route_id())
 	else:
 		%Spacing.select(1)
 	%RemoveButton.disabled = _selected_entry_id < 0
@@ -184,6 +215,7 @@ func _refresh() -> void:
 	%UndoButton.disabled = not _draft.can_undo()
 	%RedoButton.disabled = not _draft.can_redo()
 	%ClearButton.disabled = entries.is_empty()
+	%CommitButton.disabled = not validation.is_valid()
 	if %Feedback.text.is_empty():
 		%Feedback.text = validation.get_summary()
 		%Feedback.add_theme_color_override(
@@ -196,6 +228,13 @@ func _set_spacing_selection(spacing_ticks: int) -> void:
 	for index: int in %Spacing.item_count:
 		if int(%Spacing.get_item_metadata(index)) == spacing_ticks:
 			%Spacing.select(index)
+			return
+
+
+func _set_route_selection(route_id: StringName) -> void:
+	for index: int in %Route.item_count:
+		if %Route.get_item_metadata(index) == route_id:
+			%Route.select(index)
 			return
 
 
@@ -247,6 +286,12 @@ func _on_spacing_item_selected(index: int) -> void:
 	set_selected_spacing(int(%Spacing.get_item_metadata(index)))
 
 
+func _on_route_item_selected(index: int) -> void:
+	if _selected_entry_id < 0:
+		return
+	set_selected_route(%Route.get_item_metadata(index))
+
+
 func _on_remove_button_pressed() -> void:
 	remove_selected_entry()
 
@@ -269,3 +314,7 @@ func _on_redo_button_pressed() -> void:
 
 func _on_clear_button_pressed() -> void:
 	clear()
+
+
+func _on_commit_button_pressed() -> void:
+	request_commit()

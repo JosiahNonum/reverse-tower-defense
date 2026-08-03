@@ -1,7 +1,7 @@
 # M3 Player-Authored Match Verification
 
-Status: M3.1 complete; later M3 items not yet implemented  
-Verified: 2026-07-24  
+Status: M3 implementation and visual flow verified
+Verified: 2026-08-03
 Godot: 4.7.1.stable.official.a13da4feb
 
 ## M3.1 defense inspection and threat visualization
@@ -57,3 +57,22 @@ Manual review still required:
 4. Briefly exceed the budget and remove an entry; confirm the message is actionable and the draft remains editable.
 
 M3.3 owns route assignment and authoritative atomic commit, so this review should not expect either control yet.
+
+## M3.3 through M3.6 player-authored match flow
+
+Automated evidence:
+
+- Route selection remains draft-local until commit. The commit path normalizes the first spacing, validates the full route/unit schedule with `UnitSpawnSchedule`, and creates an independent fixed-defense resolution input. Later draft edits cannot alter the committed wave.
+- `MatchState` explicitly enforces reveal, authoring, commit, resolution, analysis, round transition, and match-end phases. Playback pause and 1x/2x/4x only change presentation tick delivery; they never change fixed-tick results.
+- `PostWaveAnalysis` reports only ordered combat-event facts: core integrity, leaks, survivors, effective damage by tower/location, and deaths by location. It returns copies and is available only after resolution.
+- Scripted match coverage drives five full rounds through the shared command gateway, verifies the defender win after round five, verifies a player win immediately after the core reaches zero, and verifies restart rebuilds the initial state from the same root seed.
+
+Final automated gate:
+
+- `./scripts/verify.ps1` passed on 2026-08-03: parser, smoke, full test suite, checked replay, three checked combat scenarios, and incompatible-schema rejection all succeeded.
+- `git diff --check` passed in the same run.
+
+Live runtime evidence:
+
+- 2026-08-03 Godot runtime bridge validation launched the actual main scene, entered authoring from Defense Reveal, added a wave entry, scrolled to and activated Commit Wave, and observed the visible `ANALYSIS · 0 leaks · core 10` result.
+- The live `NEXT ROUND` control activated after analysis and returned the composition to the next reveal. The phase label is updated to show the new round.

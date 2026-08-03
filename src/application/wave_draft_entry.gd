@@ -32,6 +32,10 @@ func get_route_id() -> StringName:
 	return _route_id
 
 
+func set_route_id(route_id: StringName) -> void:
+	_route_id = route_id
+
+
 func get_spacing_after_previous() -> int:
 	return _spacing_after_previous
 

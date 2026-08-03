@@ -9,6 +9,7 @@ const CODE_FORBIDDEN_ACTOR: StringName = &"forbidden_actor"
 const CODE_INVALID_COMMAND_ID: StringName = &"invalid_command_id"
 const CODE_DUPLICATE_COMMAND: StringName = &"duplicate_command"
 const CODE_EXPECTED_PHASE_MISMATCH: StringName = &"expected_phase_mismatch"
+const CODE_INVALID_WAVE: StringName = &"invalid_wave"
 
 var is_accepted: bool
 var code: StringName
