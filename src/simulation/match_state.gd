@@ -151,7 +151,7 @@ func _required_phase(command_type: StringName) -> StringName:
 		PhaseCommand.BEGIN_ANALYSIS:
 			return MatchPhase.ANALYSIS
 		PhaseCommand.BEGIN_NEXT_ROUND:
-			return MatchPhase.ROUND_TRANSITION
+			return MatchPhase.DEFENDER_ADAPTATION
 		PhaseCommand.END_MATCH:
 			return MatchPhase.ANALYSIS
 		_:
@@ -187,7 +187,7 @@ func _destination_phase(command_type: StringName) -> StringName:
 		PhaseCommand.COMPLETE_RESOLUTION:
 			return MatchPhase.ANALYSIS
 		PhaseCommand.BEGIN_ANALYSIS:
-			return MatchPhase.ROUND_TRANSITION
+			return MatchPhase.DEFENDER_ADAPTATION
 		PhaseCommand.BEGIN_NEXT_ROUND:
 			return MatchPhase.DEFENSE_REVEAL
 		PhaseCommand.END_MATCH:

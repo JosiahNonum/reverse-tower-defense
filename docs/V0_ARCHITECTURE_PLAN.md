@@ -296,6 +296,8 @@ DEFENSE_REVEAL <- DEFENDER_ADAPTATION <- ROUND_TRANSITION          MATCH_END
 
 The defender builds the initial defense from map, rules, profile, and seed. Between rounds it receives only the allowed observation projection of committed history. It never receives the live wave draft. The coordinator captures the exact observation before asking the planner for commands, then validates those commands through the normal command gateway. Initial defense and defender adaptation are the only phases that accept defense actions. `DEFENSE_REVEAL` is a player-visible application phase and cannot mutate rules state.
 
+M4 realizes the observation history, projector, simulation-side defense command gateway, bounded stable command selection, controlled variation, diagnostics, and adversarial evidence under `src/defender_ai`; its local verification record is [M4 Adaptive Defender Verification](M4_VERIFICATION.md).
+
 The rules definition supplies the five-round attack budget schedule, initial defense budget, adaptation grants, 75% floor-rounded sale refund, and 10-integrity core from the product contract. Attack budget is round-local; defense reserve and tower investment persist. Economy changes are authoritative ordered events, not UI calculations.
 
 Pause stops requests for simulation ticks. Faster playback advances multiple fixed ticks while presentation renders the newest snapshot. Planning and analysis are not simulation-time phases.

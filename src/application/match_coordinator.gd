@@ -2,6 +2,11 @@ class_name MatchCoordinator
 extends Node
 
 const PostWaveAnalysisScript = preload("res://src/application/post_wave_analysis.gd")
+const ObservationHistoryScript = preload("res://src/defender_ai/observation_history.gd")
+const ObservationProjectorScript = preload("res://src/defender_ai/observation_projector.gd")
+const DefenderPlannerScript = preload("res://src/defender_ai/defender_planner.gd")
+const DefenseCommandGatewayScript = preload("res://src/simulation/defense_command_gateway.gd")
+const DefenderVariationScript = preload("res://src/defender_ai/defender_variation.gd")
 signal view_published(view: MatchView, events: Array[DomainEvent])
 
 var _catalog: ContentCatalog
@@ -12,6 +17,13 @@ var _tower_deployments: Array[TowerDeployment] = []
 var _active_simulation: FixedDefenseSimulation
 var _core_integrity: int = -1
 var _root_seed: int = 0
+var _observation_history
+var _decision_traces: Array = []
+var _defender_profile: DefenderProfileDefinition
+var _defender_budget: int = 0
+var _next_decision_id: int = 1
+var _adaptive_defender_enabled: bool = true
+var _defender_variation
 
 func initialize(catalog: ContentCatalog, rules: MatchRulesDefinition, root_seed: int) -> void:
 	assert(_state == null, "MatchCoordinator may only be initialized once")
@@ -22,6 +34,11 @@ func initialize(catalog: ContentCatalog, rules: MatchRulesDefinition, root_seed:
 	_root_seed = root_seed
 	_core_integrity = rules.core_health
 	_state = MatchState.new(root_seed)
+	_observation_history = ObservationHistoryScript.new()
+	_defender_profile = catalog.get_defender_profile(&"profile.normal")
+	_defender_budget = rules.initial_defense_budget
+	_defender_variation = DefenderVariationScript.new(root_seed)
+	_run_defender_planning(MatchPhase.INITIAL_DEFENSE)
 	publish_current_view()
 
 
@@ -94,10 +111,15 @@ func complete_analysis(command_id: int) -> CommandResult:
 		return CommandResult.reject(CommandResult.CODE_WRONG_PHASE, "Analysis is not active.")
 	if _core_integrity <= 0 or _state.get_round_index() >= _rules.round_count:
 		return apply_phase_command(PhaseCommand.new(command_id, PhaseCommand.END_MATCH, MatchPhase.ANALYSIS, PhaseCommand.ACTOR_SYSTEM))
+	if _adaptive_defender_enabled:
+		_observation_history.append_finalized(_state.get_round_index(), get_post_wave_analysis())
+		_defender_budget += _rules.adaptation_grant
 	var transition: CommandResult = apply_phase_command(PhaseCommand.new(command_id, PhaseCommand.BEGIN_ANALYSIS, MatchPhase.ANALYSIS, PhaseCommand.ACTOR_SYSTEM))
 	if not transition.is_accepted:
 		return transition
-	return apply_phase_command(PhaseCommand.new(command_id + 1, PhaseCommand.BEGIN_NEXT_ROUND, MatchPhase.ROUND_TRANSITION, PhaseCommand.ACTOR_SYSTEM))
+	if _adaptive_defender_enabled:
+		_run_defender_planning(MatchPhase.DEFENDER_ADAPTATION)
+	return apply_phase_command(PhaseCommand.new(command_id + 1, PhaseCommand.BEGIN_NEXT_ROUND, MatchPhase.DEFENDER_ADAPTATION, PhaseCommand.ACTOR_SYSTEM))
 
 
 func get_match_outcome() -> StringName:
@@ -118,7 +140,30 @@ func restart() -> void:
 	_active_simulation = null
 	_core_integrity = _rules.core_health
 	_published_event_count = 0
+	_observation_history = ObservationHistoryScript.new()
+	_decision_traces.clear()
+	_defender_budget = _rules.initial_defense_budget
+	_next_decision_id = 1
+	_defender_variation = DefenderVariationScript.new(_root_seed)
+	if _adaptive_defender_enabled:
+		_run_defender_planning(MatchPhase.INITIAL_DEFENSE)
 	publish_current_view()
+
+func get_decision_traces() -> Array:
+	return _decision_traces.duplicate()
+
+func get_defender_deployments() -> Array[TowerDeployment]:
+	var result: Array[TowerDeployment] = []
+	for deployment: TowerDeployment in _tower_deployments:
+		result.append(deployment.copy())
+	return result
+
+func get_latest_defense_explanation() -> String:
+	if _decision_traces.is_empty(): return "Defense retained its public layout."
+	var trace = _decision_traces.back()
+	var leaks: int = int(trace.features.get(&"leaks", 0))
+	if leaks > 0: return "Defense adapted after %d observed prior leaks." % leaks
+	return "Defense strengthened public coverage between rounds."
 
 func is_initialized() -> bool:
 	return _state != null
@@ -170,3 +215,13 @@ func _create_current_view() -> MatchView:
 
 func _assert_initialized() -> void:
 	assert(_state != null, "MatchCoordinator must be initialized by the composition root")
+
+func _run_defender_planning(phase: StringName) -> void:
+	var gateway = DefenseCommandGatewayScript.new(_catalog, _rules, _defender_budget, _tower_deployments)
+	var observation = ObservationProjectorScript.project(_state.get_round_index(), phase, _defender_profile, _core_integrity, _defender_budget, _tower_deployments, _observation_history, _rules, _catalog.content_fingerprint())
+	var planner := DefenderPlannerScript.new()
+	var trace = planner.plan(observation, _defender_profile, _catalog, _rules, gateway, _defender_variation, _next_decision_id)
+	_next_decision_id += 1
+	_defender_budget = gateway.get_budget()
+	_tower_deployments = gateway.get_deployments()
+	_decision_traces.append(trace)

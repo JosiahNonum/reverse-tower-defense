@@ -108,6 +108,12 @@ func get_rules(rules_id: StringName) -> MatchRulesDefinition:
 			return match_rules
 	return null
 
+func get_defender_profile(profile_id: StringName) -> DefenderProfileDefinition:
+	for profile: DefenderProfileDefinition in defender_profiles:
+		if profile.content_id == profile_id:
+			return profile
+	return null
+
 
 func _all_definitions() -> Array[Resource]:
 	var definitions: Array[Resource] = []

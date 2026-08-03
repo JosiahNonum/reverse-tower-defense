@@ -48,11 +48,7 @@ func compose() -> void:
 	assert(_catalog.rules.size() == 1, "v0 expects exactly one checked-in rules definition")
 	_rules = _catalog.rules[0]
 	var map: MapDefinition = _catalog.get_map(_rules.map_id)
-	_inspection_model = DefenseInspectionBuilder.new().build(
-		_catalog,
-		map,
-		_initial_defense_deployments(),
-	)
+	_inspection_model = DefenseInspectionBuilder.new().build(_catalog, map, _initial_defense_deployments())
 	coordinator.view_published.connect(battlefield_view.reconcile)
 	map_view.tower_selected.connect(inspection_panel.show_tower)
 	map_view.configure(_inspection_model)
@@ -134,6 +130,11 @@ func _on_continue_button_pressed() -> void:
 	%BeginAuthoringButton.show()
 	%MapHint.text = "Numbers count overlapping tower ranges. Colors are qualitative coverage—not a damage forecast. Use ← / → after selecting the map."
 	get_wave_composer_panel().configure(_catalog, _rules, coordinator.get_round_index())
+	var map: MapDefinition = _catalog.get_map(_rules.map_id)
+	_inspection_model = DefenseInspectionBuilder.new().build(_catalog, map, coordinator.get_defender_deployments())
+	%DefenseMapView.configure(_inspection_model)
+	%DefenseInspectionPanel.configure(_inspection_model)
+	%MapHint.text = coordinator.get_latest_defense_explanation()
 	%PhaseValue.text = "DEFENSE REVEAL · ROUND %d" % coordinator.get_round_index()
 	%PhaseValue.text = "DEFENSE REVEAL  ·  ROUND 1"
 	_is_composed = true

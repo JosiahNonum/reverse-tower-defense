@@ -329,6 +329,8 @@ M3 progress through 2026-07-24:
 
 Purpose: make the defense side responsive while preserving fairness and explainability.
 
+Implementation status: M4 is complete locally. Its match-local observation history, legal command gateway, bounded scoring/selection, controlled variation, decision traces, visible between-round explanation, restart clearing, and adversarial test evidence are recorded in [M4 Adaptive Defender Verification](M4_VERIFICATION.md).
+
 Outputs:
 
 - Observation history limited by the AI contract
