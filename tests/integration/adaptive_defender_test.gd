@@ -7,11 +7,14 @@ func test_adaptation_is_headless_repeatable_and_restart_clears_prior_history() -
 	var second = _run_one_round(73)
 	assert_equal(first["trace"].to_dictionary(), second["trace"].to_dictionary())
 	assert_true(first["trace"].chosen_commands.size() > 0)
+	assert_true(first["coordinator"].get_defender_deployments().size() > 0)
 	assert_true(first["coordinator"].get_latest_defense_explanation().contains("public") or first["coordinator"].get_latest_defense_explanation().contains("leaks"))
 	first["coordinator"].restart()
 	var traces: Array = first["coordinator"].get_decision_traces()
 	assert_equal(traces.size(), 1)
 	assert_equal(traces[0].visible_rounds.size(), 0)
+	first["coordinator"].free()
+	second["coordinator"].free()
 
 func _run_one_round(seed: int) -> Dictionary:
 	var catalog := ContentCatalog.load_from_directory("res://content")

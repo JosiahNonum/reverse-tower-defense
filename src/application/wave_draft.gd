@@ -54,7 +54,12 @@ func can_redo() -> bool:
 	return not _redo_snapshots.is_empty()
 
 
-func add_unit(unit_id: StringName, quantity: int = 1) -> WaveDraftEditResult:
+func add_unit(
+	unit_id: StringName,
+	quantity: int = 1,
+	preferred_route_id: StringName = &"",
+	preferred_spacing_ticks: int = SPACING_STANDARD,
+) -> WaveDraftEditResult:
 	if quantity <= 0:
 		return WaveDraftEditResult.reject(
 			WaveDraftEditResult.CODE_INVALID_QUANTITY,
@@ -78,12 +83,15 @@ func add_unit(unit_id: StringName, quantity: int = 1) -> WaveDraftEditResult:
 		)
 	_push_undo_snapshot()
 	var route_id: StringName = _default_route_for(unit)
+	if not preferred_route_id.is_empty() and unit.allowed_route_ids.has(preferred_route_id):
+		route_id = preferred_route_id
+	var spacing_ticks: int = preferred_spacing_ticks if ALLOWED_SPACINGS.has(preferred_spacing_ticks) else SPACING_STANDARD
 	for index: int in quantity:
 		_entries.append(WaveDraftEntry.new(
 			_next_entry_id,
 			unit_id,
 			route_id,
-			SPACING_STANDARD,
+			spacing_ticks,
 		))
 		_next_entry_id += 1
 	return WaveDraftEditResult.accept("Added %d %s." % [quantity, unit_id])

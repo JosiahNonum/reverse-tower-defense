@@ -17,7 +17,7 @@ func plan(observation, profile: DefenderProfileDefinition, catalog: ContentCatal
 	trace.features = ThreatAnalyzerScript.analyze(observation)
 	for row: Dictionary in observation.history: trace.visible_rounds.append(int(row["round"]))
 	for action_index: int in profile.action_cap:
-		var candidates: Array = _candidates(catalog, rules, gateway)
+		var candidates: Array = _candidates(catalog, rules, gateway, observation.phase != MatchPhase.INITIAL_DEFENSE)
 		trace.candidate_count += candidates.size()
 		candidates.sort_custom(func(left, right) -> bool: return _candidate_before(left, right))
 		if candidates.size() > profile.candidate_cap:
@@ -52,7 +52,7 @@ func plan(observation, profile: DefenderProfileDefinition, catalog: ContentCatal
 	trace.remaining_budget = gateway.get_budget()
 	return trace
 
-func _candidates(catalog: ContentCatalog, rules: MatchRulesDefinition, gateway) -> Array:
+func _candidates(catalog: ContentCatalog, rules: MatchRulesDefinition, gateway, allow_sales: bool) -> Array:
 	var result: Array = []
 	var map: MapDefinition = catalog.get_map(rules.map_id)
 	var towers: Array[TowerDefinition] = []
@@ -70,9 +70,12 @@ func _candidates(catalog: ContentCatalog, rules: MatchRulesDefinition, gateway) 
 			var upgrade_command = DefenseCommandScript.new(command_id, DefenseCommandScript.UPGRADE_TOWER, tower.upgrade_to_id, deployment.slot_id)
 			if gateway.is_legal(upgrade_command): _append_candidate(result, upgrade_command, catalog.get_tower(tower.upgrade_to_id), 20)
 			command_id += 1
-		var sell_command = DefenseCommandScript.new(command_id, DefenseCommandScript.SELL_TOWER, tower.content_id, deployment.slot_id)
-		if gateway.is_legal(sell_command): _append_candidate(result, sell_command, tower, -20)
-		command_id += 1
+		# Keep a visible, playable defense anchor between rounds. Adaptation may
+		# replace or improve towers, but it must not sell the final tower away.
+		if allow_sales and gateway.get_deployments().size() > 1:
+			var sell_command = DefenseCommandScript.new(command_id, DefenseCommandScript.SELL_TOWER, tower.content_id, deployment.slot_id)
+			if gateway.is_legal(sell_command): _append_candidate(result, sell_command, tower, -20)
+			command_id += 1
 	if gateway.get_budget() * 10000 <= rules.adaptation_grant * 10000:
 		var reserve_command = DefenseCommandScript.new(command_id, DefenseCommandScript.RESERVE_BUDGET)
 		if gateway.is_legal(reserve_command): _append_candidate(result, reserve_command, null, -10000)

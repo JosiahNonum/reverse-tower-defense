@@ -358,6 +358,8 @@ Outputs:
 
 Exit gate: the build satisfies the v0 definition, no known Must-severity defect blocks a full match, and playtest evidence supports either continuing, revising, or stopping the concept.
 
+M5 status: validation is complete locally with a **revise** exit decision. The deterministic 72-case matrix found 71 player wins and three universal attacker shapes after an initial-defense self-sale fix. Human adaptation-loop playtests remain open, so this is not an external release approval. See [M5 Verification](M5_VERIFICATION.md) and [v0 Windows Runbook](V0_RELEASE_RUNBOOK.md).
+
 ## 7. Verification strategy
 
 Completion evidence is layered:

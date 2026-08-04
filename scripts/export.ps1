@@ -1,5 +1,7 @@
 param(
-    [switch]$SkipLaunchCheck
+    [switch]$SkipLaunchCheck,
+    [string]$Version = 'v0.1.0',
+    [switch]$Debug
 )
 
 Set-StrictMode -Version Latest
@@ -9,15 +11,23 @@ $ErrorActionPreference = 'Stop'
 
 $repoRoot = Split-Path $PSScriptRoot -Parent
 $godot = Get-GodotExecutable -Console
-$version = Assert-GodotVersion -Executable $godot
-$outputDirectory = Join-Path $repoRoot 'build\windows'
+$godotVersion = Assert-GodotVersion -Executable $godot
+$artifactVersion = $Version
+if ($Debug) {
+    $artifactVersion = "$Version-debug"
+}
+$outputDirectory = Join-Path $repoRoot (Join-Path 'build\windows' $artifactVersion)
 $outputPath = Join-Path $outputDirectory 'reverse-tower-defense.exe'
 $packagePath = Join-Path $outputDirectory 'reverse-tower-defense.pck'
 
 New-Item -ItemType Directory -Path $outputDirectory -Force | Out-Null
 
-Write-Host "Exporting Windows Desktop with Godot $version"
-& $godot --headless --path $repoRoot --export-release 'Windows Desktop' $outputPath
+$exportMode = '--export-release'
+if ($Debug) {
+    $exportMode = '--export-debug'
+}
+Write-Host "Exporting Windows Desktop $artifactVersion with Godot $godotVersion"
+& $godot --headless --path $repoRoot $exportMode 'Windows Desktop' $outputPath
 if ($LASTEXITCODE -ne 0) {
     throw "Godot export failed with exit code $LASTEXITCODE"
 }

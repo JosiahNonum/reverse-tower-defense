@@ -7,6 +7,8 @@ var _catalog: ContentCatalog
 var _rules: MatchRulesDefinition
 var _draft: WaveDraft
 var _selected_entry_id: int = -1
+var _last_selected_spacing: int = WaveDraft.SPACING_STANDARD
+var _last_selected_route: StringName = &""
 
 
 func configure(catalog: ContentCatalog, rules: MatchRulesDefinition, round_index: int = 1) -> void:
@@ -35,10 +37,15 @@ func get_feedback_text() -> String:
 
 func add_unit(unit_id: StringName) -> WaveDraftEditResult:
 	_assert_configured()
-	var result: WaveDraftEditResult = _draft.add_unit(unit_id)
+	var result: WaveDraftEditResult = _draft.add_unit(
+		unit_id, 1, _last_selected_route, _last_selected_spacing,
+	)
 	if result.is_accepted:
 		var entries: Array[WaveDraftEntry] = _draft.get_entries()
-		_selected_entry_id = entries[entries.size() - 1].get_entry_id()
+		var added_entry: WaveDraftEntry = entries[entries.size() - 1]
+		_selected_entry_id = added_entry.get_entry_id()
+		_last_selected_spacing = added_entry.get_spacing_after_previous()
+		_last_selected_route = added_entry.get_route_id()
 	_apply_result(result)
 	return result
 
@@ -74,7 +81,10 @@ func set_selected_spacing(spacing_ticks: int) -> WaveDraftEditResult:
 			WaveDraftEditResult.CODE_UNKNOWN_ENTRY,
 			"Select a draft entry before changing spacing.",
 		))
-	return _apply_result(_draft.set_spacing(_selected_entry_id, spacing_ticks))
+	var result: WaveDraftEditResult = _draft.set_spacing(_selected_entry_id, spacing_ticks)
+	if result.is_accepted:
+		_last_selected_spacing = spacing_ticks
+	return _apply_result(result)
 
 
 func set_selected_route(route_id: StringName) -> WaveDraftEditResult:
@@ -84,7 +94,10 @@ func set_selected_route(route_id: StringName) -> WaveDraftEditResult:
 			WaveDraftEditResult.CODE_UNKNOWN_ENTRY,
 			"Select a draft entry before changing route.",
 		))
-	return _apply_result(_draft.set_route(_selected_entry_id, route_id))
+	var result: WaveDraftEditResult = _draft.set_route(_selected_entry_id, route_id)
+	if result.is_accepted:
+		_last_selected_route = route_id
+	return _apply_result(result)
 
 
 func request_commit() -> bool:
@@ -145,6 +158,8 @@ func _build_route_options() -> void:
 	for route: RouteDefinition in map.routes:
 		%Route.add_item(_humanize_id(route.route_id))
 		%Route.set_item_metadata(%Route.item_count - 1, route.route_id)
+	if not _has_route_option(_last_selected_route) and %Route.item_count > 0:
+		_last_selected_route = %Route.get_item_metadata(0)
 
 
 func _apply_result(result: WaveDraftEditResult) -> WaveDraftEditResult:
@@ -205,10 +220,13 @@ func _refresh() -> void:
 			selected_index = index
 	if selected_index >= 0:
 		%EntryList.select(selected_index)
-		_set_spacing_selection(entries[selected_index].get_spacing_after_previous())
-		_set_route_selection(entries[selected_index].get_route_id())
+		_last_selected_spacing = entries[selected_index].get_spacing_after_previous()
+		_last_selected_route = entries[selected_index].get_route_id()
+		_set_spacing_selection(_last_selected_spacing)
+		_set_route_selection(_last_selected_route)
 	else:
-		%Spacing.select(1)
+		_set_spacing_selection(_last_selected_spacing)
+		_set_route_selection(_last_selected_route)
 	%RemoveButton.disabled = _selected_entry_id < 0
 	%MoveUpButton.disabled = _selected_entry_id < 0
 	%MoveDownButton.disabled = _selected_entry_id < 0
@@ -238,6 +256,13 @@ func _set_route_selection(route_id: StringName) -> void:
 			return
 
 
+func _has_route_option(route_id: StringName) -> bool:
+	for index: int in %Route.item_count:
+		if %Route.get_item_metadata(index) == route_id:
+			return true
+	return false
+
+
 func _spacing_label(spacing_ticks: int) -> String:
 	match spacing_ticks:
 		WaveDraft.SPACING_TIGHT:
@@ -261,7 +286,10 @@ func _selected_from_list(index: int) -> void:
 	_selected_entry_id = int(%EntryList.get_item_metadata(index))
 	var entry: WaveDraftEntry = _find_entry(_selected_entry_id)
 	if entry != null:
-		_set_spacing_selection(entry.get_spacing_after_previous())
+		_last_selected_spacing = entry.get_spacing_after_previous()
+		_last_selected_route = entry.get_route_id()
+		_set_spacing_selection(_last_selected_spacing)
+		_set_route_selection(_last_selected_route)
 	_refresh()
 
 

@@ -49,6 +49,17 @@ func test_planner_is_bounded_stable_and_uses_only_observation_values() -> void:
 	assert_equal(first.observation_fingerprint, observation.fingerprint())
 	assert_equal(first.to_dictionary(), second.to_dictionary())
 
+func test_initial_defense_keeps_its_legal_placements_instead_of_selling_them() -> void:
+	var catalog := ContentCatalog.load_from_directory("res://content")
+	var rules: MatchRulesDefinition = catalog.rules[0]
+	var profile: DefenderProfileDefinition = catalog.get_defender_profile(&"profile.normal")
+	var gateway = GatewayScript.new(catalog, rules, rules.initial_defense_budget)
+	var observation = ProjectorScript.project(1, MatchPhase.INITIAL_DEFENSE, profile, rules.core_health, rules.initial_defense_budget, [], HistoryScript.new(), rules, catalog.content_fingerprint())
+	var trace = PlannerScript.new().plan(observation, profile, catalog, rules, gateway, VariationScript.new(1), 1)
+	assert_true(gateway.get_deployments().size() > 0)
+	for command: Dictionary in trace.chosen_commands:
+		assert_false(command["type"] == DefenseCommand.SELL_TOWER)
+
 func _analysis(core: int, leaks: int, survivors: int):
 	return _Analysis.new(core, leaks, survivors)
 

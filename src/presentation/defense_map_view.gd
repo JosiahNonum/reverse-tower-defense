@@ -89,9 +89,9 @@ func _draw_map_frame() -> void:
 
 func _draw_segments() -> void:
 	var selected: DefenseTowerInspection = _model.get_tower(_selected_slot_id)
-	var selected_edges: Array[StringName] = (
-		selected.get_covered_edge_ids() if selected != null else []
-	)
+	var selected_edges: Array[StringName] = []
+	if selected != null:
+		selected_edges = selected.get_covered_edge_ids()
 	for segment: RouteThreatInspection in _model.get_segments():
 		var start: Vector2 = _logical_to_screen(segment.get_from_position())
 		var finish: Vector2 = _logical_to_screen(segment.get_to_position())

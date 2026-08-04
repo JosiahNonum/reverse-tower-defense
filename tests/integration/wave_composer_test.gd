@@ -116,6 +116,24 @@ func test_composer_panel_transitions_from_reveal_and_edits_a_wave() -> void:
 	main.free()
 
 
+func test_composer_reuses_last_route_and_spacing_for_new_units() -> void:
+	var packed: PackedScene = load("res://src/presentation/main.tscn") as PackedScene
+	var main := packed.instantiate() as MainCompositionRoot
+	main.compose()
+	main.begin_authoring_for_visual_check()
+	var composer: WaveComposerPanel = main.get_wave_composer_panel()
+
+	assert_true(composer.add_unit(&"unit.runner").is_accepted)
+	assert_true(composer.set_selected_spacing(WaveDraft.SPACING_TIGHT).is_accepted)
+	assert_true(composer.set_selected_route(&"route.south").is_accepted)
+	assert_true(composer.add_unit(&"unit.swarm").is_accepted)
+	var entries: Array[WaveDraftEntry] = composer.get_draft_entries()
+	assert_equal(entries.size(), 2)
+	assert_equal(entries[1].get_spacing_after_previous(), WaveDraft.SPACING_TIGHT)
+	assert_equal(entries[1].get_route_id(), &"route.south")
+	main.free()
+
+
 func test_route_assignment_and_commit_produce_immutable_resolution_input() -> void:
 	var catalog := ContentCatalog.load_from_directory("res://content")
 	var rules: MatchRulesDefinition = catalog.rules[0]
@@ -143,6 +161,7 @@ func test_route_assignment_and_commit_produce_immutable_resolution_input() -> vo
 	)).is_accepted)
 	coordinator.advance_resolution_tick()
 	assert_equal(coordinator.get_active_simulation().get_units()[0].route_id, &"route.south")
+	coordinator.free()
 
 
 func _new_draft() -> WaveDraft:

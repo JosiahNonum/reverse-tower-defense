@@ -1,7 +1,7 @@
 # Reverse Tower Defense — Living Project Plan
 
-Status: M0 and M1 ratified; M2 complete; M3 player-authored match in progress
-Last updated: 2026-07-24
+Status: M0 through M4 complete locally; M5 validation complete locally with a revise decision before external v0 release
+Last updated: 2026-08-03
 
 Execution planning is tracked in [V0_MVP_DEVELOPMENT_PLAN.md](V0_MVP_DEVELOPMENT_PLAN.md).
 

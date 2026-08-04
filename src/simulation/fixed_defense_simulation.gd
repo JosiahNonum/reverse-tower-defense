@@ -125,6 +125,14 @@ func get_events() -> Array[DomainEvent]:
 	return result
 
 
+func get_events_since(start_index: int) -> Array[DomainEvent]:
+	var result: Array[DomainEvent] = []
+	var first_index: int = clampi(start_index, 0, _events.size())
+	for index: int in range(first_index, _events.size()):
+		result.append(_events[index].copy())
+	return result
+
+
 func create_entity_views() -> Array[EntityView]:
 	var views: Array[EntityView] = []
 	for tower: TowerState in _towers:
@@ -133,12 +141,21 @@ func create_entity_views() -> Array[EntityView]:
 			&"tower",
 			tower.logical_x,
 			tower.logical_y,
+			0,
+			0,
 		))
 	for unit: UnitState in _units:
 		if not unit.is_active():
 			continue
 		var position: Vector2i = _movement.logical_position(unit)
-		views.append(EntityView.new(unit.entity_id, &"unit", position.x, position.y))
+		views.append(EntityView.new(
+			unit.entity_id,
+			&"unit",
+			position.x,
+			position.y,
+			unit.health,
+			unit.max_health,
+		))
 	return views
 
 
@@ -262,6 +279,8 @@ func _stage_attacks() -> Array[AttackIntent]:
 			"logical_y": tower.logical_y,
 			"attack_ordinal": attack_ordinal,
 			"primary_target_id": primary.entity_id,
+			"target_logical_x": _movement.logical_position(primary).x,
+			"target_logical_y": _movement.logical_position(primary).y,
 			"victim_ids": victim_ids,
 		})
 	return intents

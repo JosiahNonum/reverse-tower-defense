@@ -59,6 +59,8 @@ The tick rate and logical scale are authoritative v0 defaults. The stress target
 - The phase names, economy timing, targeting rules, status stacking, and initial archetype vocabulary are the M0 contracts recorded in the living product plan.
 - v0 does not require resumable in-progress match saves. Versioned settings and diagnostic scenario/replay files are sufficient unless M5 usability evidence authorizes a scope change.
 
+M5 settings implementation: an application-owned `RefCounted` uses schema-versioned `user://settings.json` to persist only presentation playback speed. Malformed, incompatible, unreadable, and unsupported values fall back to 1x. It does not save match state, player profile, AI history, or rules results.
+
 ### Explicitly deferred
 
 - Freeform path drawing or dynamic navigation meshes

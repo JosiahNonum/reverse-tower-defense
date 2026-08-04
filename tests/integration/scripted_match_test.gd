@@ -28,6 +28,7 @@ func test_five_round_scripted_match_reaches_defender_win_and_preserves_core() ->
 		command_id += 2 if round_index < rules.round_count - 1 else 1
 	assert_equal(coordinator.get_current_view().get_phase(), MatchPhase.MATCH_END)
 	assert_equal(coordinator.call("get_match_outcome"), &"defender_win")
+	coordinator.free()
 
 
 func test_core_zero_ends_the_match_with_player_win_after_first_wave() -> void:
@@ -49,6 +50,7 @@ func test_core_zero_ends_the_match_with_player_win_after_first_wave() -> void:
 	assert_true(coordinator.complete_analysis(6).is_accepted)
 	assert_equal(coordinator.get_current_view().get_phase(), MatchPhase.MATCH_END)
 	assert_equal(coordinator.call("get_match_outcome"), &"player_win")
+	coordinator.free()
 
 
 func test_restart_discards_match_damage_and_returns_to_initial_defense() -> void:
@@ -61,3 +63,4 @@ func test_restart_discards_match_damage_and_returns_to_initial_defense() -> void
 	assert_equal(coordinator.get_current_view().get_phase(), MatchPhase.INITIAL_DEFENSE)
 	assert_equal(coordinator.get_current_view().get_tick(), 0)
 	assert_equal(coordinator.call("get_match_outcome"), &"")
+	coordinator.free()

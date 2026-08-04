@@ -36,3 +36,4 @@ func test_coordinator_only_exposes_analysis_after_resolution() -> void:
 	assert_true(coordinator.apply_phase_command(PhaseCommand.new(5, PhaseCommand.COMPLETE_RESOLUTION, MatchPhase.RESOLVING, PhaseCommand.ACTOR_SYSTEM)).is_accepted)
 	var analysis = coordinator.call("get_post_wave_analysis")
 	assert_equal(analysis.get_leak_count(), 1)
+	coordinator.free()

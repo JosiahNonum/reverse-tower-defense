@@ -13,6 +13,7 @@ var _catalog: ContentCatalog
 var _rules: MatchRulesDefinition
 var _state: MatchState
 var _published_event_count: int = 0
+var _published_simulation_event_count: int = 0
 var _tower_deployments: Array[TowerDeployment] = []
 var _active_simulation: FixedDefenseSimulation
 var _core_integrity: int = -1
@@ -25,7 +26,7 @@ var _next_decision_id: int = 1
 var _adaptive_defender_enabled: bool = true
 var _defender_variation
 
-func initialize(catalog: ContentCatalog, rules: MatchRulesDefinition, root_seed: int) -> void:
+func initialize(catalog: ContentCatalog, rules: MatchRulesDefinition, root_seed: int, defender_profile_id: StringName = &"profile.normal") -> void:
 	assert(_state == null, "MatchCoordinator may only be initialized once")
 	var validation: ContentValidationResult = catalog.validate()
 	assert(validation.is_valid(), "Match content must validate before composition")
@@ -35,7 +36,8 @@ func initialize(catalog: ContentCatalog, rules: MatchRulesDefinition, root_seed:
 	_core_integrity = rules.core_health
 	_state = MatchState.new(root_seed)
 	_observation_history = ObservationHistoryScript.new()
-	_defender_profile = catalog.get_defender_profile(&"profile.normal")
+	_defender_profile = catalog.get_defender_profile(defender_profile_id)
+	assert(_defender_profile != null, "MatchCoordinator requires a valid defender profile")
 	_defender_budget = rules.initial_defense_budget
 	_defender_variation = DefenderVariationScript.new(root_seed)
 	_run_defender_planning(MatchPhase.INITIAL_DEFENSE)
@@ -77,6 +79,7 @@ func commit_wave(
 	_active_simulation = FixedDefenseSimulation.new(
 		_state.get_root_seed(), _catalog, _rules, schedule, _tower_deployments, true, _core_integrity,
 	)
+	_published_simulation_event_count = 0
 	publish_current_view()
 	return phase_result
 
@@ -140,6 +143,7 @@ func restart() -> void:
 	_active_simulation = null
 	_core_integrity = _rules.core_health
 	_published_event_count = 0
+	_published_simulation_event_count = 0
 	_observation_history = ObservationHistoryScript.new()
 	_decision_traces.clear()
 	_defender_budget = _rules.initial_defense_budget
@@ -199,12 +203,23 @@ func publish_current_view() -> void:
 	for index: int in range(_published_event_count, all_events.size()):
 		new_events.append(all_events[index])
 	_published_event_count = all_events.size()
+	if _active_simulation != null:
+		var new_simulation_events: Array[DomainEvent] = _active_simulation.get_events_since(
+			_published_simulation_event_count,
+		)
+		new_events.append_array(new_simulation_events)
+		_published_simulation_event_count += new_simulation_events.size()
 	view_published.emit(_create_current_view(), new_events)
 
 
 func _create_current_view() -> MatchView:
 	var state_view: MatchView = _state.create_view()
 	if _active_simulation == null:
+		return state_view
+	var phase: StringName = state_view.get_phase()
+	if phase != MatchPhase.WAVE_COMMITTED \
+		and phase != MatchPhase.RESOLVING \
+		and phase != MatchPhase.ANALYSIS:
 		return state_view
 	return MatchView.new(
 		state_view.get_phase(),
